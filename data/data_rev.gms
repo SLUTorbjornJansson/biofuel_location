@@ -104,11 +104,11 @@ $GDXIN
 * agriculturala land data changes from Board of agriculture
 * https://statistik.sjv.se/PXWeb/pxweb/sv/Jordbruksverkets%20statistikdatabas/Jordbruksverkets%20statistikdatabas__Arealer__1%20Riket%20l%C3%A4n%20kommun/JO0104B2.px/
 
-$gdxin 'data\crop_area_2010_2020_SJV.gdx'
-$load
-parameter data_agri_area(g)'HA change in agricultural area 2010 to 2020, SJV';
-$load data_agri_area
-$GDXIN
+*$gdxin 'data\crop_area_2010_2020_SJV.gdx'
+*$load
+*parameter data_agri_area(g)'HA change in agricultural area 2010 to 2020, SJV';
+*$load data_agri_area
+*$GDXIN
 
 * Add yield for grass on abanndonned land
 * Panoutsou, C. (Ed.). (2017). Modeling and Optimization of Biomass Supply Chains:
@@ -118,6 +118,21 @@ $load
 parameter yield_ab(lan) 'tonne per ha';
 $load yield_ab
 $GDXIN
+
+* Load data on abandoned agricultural land
+$gdxin 'data\ALA_areas.gdx'
+$load
+parameter data_ALA_area(lan);
+$load data_ALA_area
+$GDXIN
+
+
+$gdxin 'data\ALA_areas_pasture.gdx'
+$load
+parameter data_ALA_pasture_area(lan);
+$load data_ALA_pasture_area
+$GDXIN
+
 
 * --- Load costs
 
@@ -142,7 +157,7 @@ $GDXIN
 
 $gdxin 'data\conversion_cost.gdx'
 $load
-parameter conversion_cost_ha(ab);
+parameter conversion_cost_ha(f);
 $load conversion_cost_ha
 $GDXIN
 
@@ -275,46 +290,56 @@ yield(g,"grass3")=yield(g,"grass1");
 * Available feedstock per region based on yield
 feedstock(f,g)=feedstock_area(g,f) * yield(g,f);
 
-* Abandonned land data (ALA)
+* Abandonned agricultural land (ALA)
 * --------------------------
+* Old cropl land ALA
+parameter ab_land(*) 'ALA area old crop land'; 
+* ALA is on county level. Assume in each municipality is ditributed as total agricultural area  in each county (of "total akerareal" (total agricultural area)
+ab_land(lan) = data_ALA_area(lan);
+
+* sum total agricultural area for county
+areaHA2(lan,"total akerareal","average15_19") = sum(g $ lan_to_kn(lan,g), areaHA2(g,"total akerareal","average15_19"));
+
+* calculate ALA per municipality based on municipality's share of agricultual land in county (lan)
+ab_land(g)  = sum(lan$lan_to_kn(lan,g), ab_land(lan)) *
+                [areaHA2(g,"total akerareal","average15_19")/ sum(lan$ lan_to_kn(lan,g), areaHA2(lan,"total akerareal","average15_19") )];
 
 
-* calculate changes in acricultural area for 2010 to 2020 to distribute contry ALA data
-parameter agri_area(*,*) 'agricultural areas';
+*  Add old pasture ALA 
+* add parameter
+parameter ab_land_pasture(*)'ALA area on pasture';
 
-* Change is the decrease in agricultural land, turn into positive area increase of abanndonned land
-agri_area(g,"change") = -data_agri_area(g);
-agri_area(g,"abandoned") = agri_area(g,"change")$ (agri_area(g,"change")>0);
-* compute share of abanndonned land, only count those with positive changed land
-agri_area(g,"share") =  agri_area(g,"abandoned") / sum(gg, agri_area(gg,"abandoned"));
-agri_area("se","share") = sum(g,  agri_area(g,"share"));
-agri_area("all","min")=smin(g,agri_area(g,"share"));
-display agri_area, data_agri_area;
+* ALA is on county level. Assume in each municipality is ditributed as total agricultural area  in each county (of "total akerareal" (total agricultural area)
+ab_land_pasture(lan) = data_ALA_pasture_area(lan);
 
-parameter ab_land(*);
-
-* Deafult ALA is 0
-scalar dataABland /0/;
-
-* take each municipalities share of total ALA
-ab_land("total") = dataABland;
-ab_land(g) =  ab_land("total")* agri_area(g,"share");
+* calculate ALA per municipality based on municipality's share of agricultual land in county (lan)
+ab_land_pasture(g)  = sum(lan$lan_to_kn(lan,g), ab_land_pasture(lan)) *
+                [areaHA2(g,"total akerareal","average15_19")/ sum(lan $ lan_to_kn(lan,g), areaHA2(lan,"total akerareal","average15_19") )];
+                
 
 
 
-
-* Add yield for grass on abanndonned land
-* Convert to thousand tonne
+* Yield in thousand tonne per hectare
 yield_ab(lan) = yield_ab(lan)* tonne_to_Ttonne;
-
-* Define per municipality
 yield(g,ab) = sum(lan $ lan_to_kn(lan,g) , yield_ab(lan));
 
-* Calculate available feedstock per regeion and category
+* For old pasture, assume same yield as ALA
+yield(g,"abP1") = yield(g,"ab1");
+yield(g,"abP2") = yield(g,"ab2");
+yield(g,"abP3") = yield(g,"ab3");
+
+* Calculate feedstock levels, equal shares of total (ab_land) per cost segment ab
+* FOr old cropland
 feedstock(ab,g) =  1/sum(aabb,1)* ab_land(g)* yield(g,ab);
 
-* test if negative feedstock
+
+* FOr old pasture
+feedstock(abP,g) =  1/sum(aabbP,1)* ab_land_pasture(g)* yield(g,abP);
+
+
+* --- test if negative feedstock
 if (smin((g,f),feedstock(f,g))<0, abort 'Negative feedstock level in some region');
+
 
 
 
@@ -339,6 +364,7 @@ cost_feedstock("grass2",g) = sum(prodOmr $ prodOmr_to_kn(g,prodOmr), cost_feedst
 cost_feedstock("grass3",g) =  cost_feedstock("grass2",g)*
                                          (1+area_factor('grass2',g)/ (sum(lan$lan_to_kn(lan,g),elas_fodder("grass2",lan))));
 
+
 * --- Cost of using abandonned land
 * we have conversion costs (equal everywhere) and production costs  (regionally differning)
 
@@ -349,6 +375,11 @@ conversion_cost_ha(ab) = conversion_cost_ha(ab) *Eur_to_M_Eur * Euro_SEK2019;
 * Conversion cost,  million euro per t tonne
 conversion_cost(g,ab) $ yield(g,ab) = conversion_cost_ha(ab) /yield(g,ab);
 
+* For old pasture, assume same
+conversion_cost(g,"abP1") $ yield(g,"abP1") =conversion_cost(g,"ab1");
+conversion_cost(g,"abP2") $ yield(g,"abP2") =conversion_cost(g,"ab2");
+conversion_cost(g,"abP3") $ yield(g,"abP3") =conversion_cost(g,"ab3");
+
 
 * Field production costs per tonne
 
@@ -358,8 +389,16 @@ data_prod_cost(lan)= data_prod_cost(lan) * Eur_to_M_Eur / m3_to_Tm3;
 * to municipality level
 prod_costAb(g,ab)= sum(lan $ lan_to_kn(lan,g), data_prod_cost(lan)) ;
 
+* For pasture, assume same
+prod_costAb(g,"abP1") = prod_costAb(g,"ab1");
+prod_costAb(g,"abP2") = prod_costAb(g,"ab2");
+prod_costAb(g,"abP3") = prod_costAb(g,"ab3");
+
 * Total costs, million euro per t tonne
 cost_feedstock(ab,g)= prod_costAb(g,ab) + conversion_cost(g,ab);
+cost_feedstock(abP,g)= prod_costAb(g,abP) + conversion_cost(g,abP);
+
+
 
 * --- Production costs, per t tonne of feedstock
 * Lin et al. (2013), Lin, T., Rodríguez, L. F., Shastri, Y. N., Hansen, A.C. and Ting, KC. (2013). GIS‐enabled biomass‐ethanol
@@ -369,6 +408,7 @@ parameter production_costUSD(f,b_fuel, tech) 'production cost in USD 2007 per t 
 production_costUSD(f,b_fuel, tech) = 0.058;
 production_cost(f,b_fuel, "low")    = production_costUSD(f,b_fuel, "low") * inflUSDExrate2007 * Euro_SEK2019;
 production_cost(f,b_fuel, "high") = production_costUSD(f,b_fuel, "high") * inflUSDExrate2007 * Euro_SEK2019;
+
 
 
 
@@ -455,14 +495,21 @@ max_target("ethanol") = 1700;
 * to municipality level
 ghg_factor(f, "feedstock",g) = sum(lan$lan_to_kn(lan,g),ghg_factor(f,"feedstock",lan));
 ghg_factor(ab, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
+ghg_factor(abP, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
 
 ghg_factor("perhectare", GHGcat,g) = sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nuts2_to_lan(nuts2,lan), ghg_factor("perhectare",GHGcat,nuts2)));
 
 * LUC from per hectare to per tonne
-ghg_factor(ab,GHGcat,g) $ (yield(g,ab) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) / tonne_to_Ttonne;
+* for old cropland
+ghg_factor(ab,GHGcat,g) $ (yield(g,ab) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) * tonne_to_Ttonne;
+* For old pasture
+ghg_factor(abP,GHGcat,g) $ (yield(g,abP) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,abP) * tonne_to_Ttonne;
 
-* assume LUC is from natural land to grassland
-ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCnat",g);
+* assume LUC is half no luc, half like from mnatural vegataion (i.e it wuld have been like grassland anyway, or natural vegeation)
+ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCnat",g)/2;
+
+* for pasture, assume LUC is from natural land to grassland
+ghg_factor(abP,"LUC",g)= ghg_factor(abP,"LUCnat",g);
 
 
 * To t tonne CO2 per t tonne or t m3

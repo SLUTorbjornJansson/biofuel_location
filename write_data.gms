@@ -87,3 +87,10 @@ $if not exist data\population_2019.gdx $call 'gdxxrw data\population_2019.xlsx o
 * Fuel deliveries, regional
 $if not exist data\fuel_delivery_2018.gdx $call 'gdxxrw data\fuel_delivery_2018.xlsx output=data\fuel_delivery_2018.gdx par=fuel_delivery ignoreColumns=B,C,D,E,G rng=a4 rDim=2'
 
+* Include regional data on ALA (to be updated if finer resolution retrived) Olofsson, J., & Börjesson, P. (2016). Nedlagd åkermark för biomassaproduktion–kartläggning och potentialuppskattning. (Report No. 2016: 01), tabell 7
+* Hectares of ALA per county, old cropland
+$if not exist data\ALA_areas.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas.gdx par=data_ALA_area rng=A3 ignoreColumns=B,C,D,E,G,H,I,J,K,L,M rDim=1'
+
+* Hectares old pasture area, total hectares from O and B, distributed as old cropland
+$if not exist data\ALA_areas_pasture.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas_pasture.gdx par=data_ALA_pasture_area rng=pasture!A3 ignoreColumns=B rDim=1'
+

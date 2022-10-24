@@ -53,9 +53,11 @@ set b_fuel(fuels) 'biofuels' /ethanol/;
 set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 
 
-set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3/;
+set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
 set grass(f) 'feedstock from ley land' /grass1,grass2,grass3/;
 set ab(f) 'subset of abandonned land' /ab1, ab2, ab3/;
+set abP(f) 'subset of ALA on old pasture . Can have different properties' /abP1, abP2, abP3 /;
+
 
 
 set GHGcat /feedstock, production, investment, transport, distribution, LUC, LUCnat, LUCcrp, all, gasolineSubs, dieselSubs, gasoline, diesel, allgasoline, carbonstock/;
@@ -141,6 +143,7 @@ alias (g,gg);
 alias (h,hh);
 alias(f,ff);
 alias(ab,aabb);
+alias(abP, aabbP);
 alias (f_fuel,f_fuelb);
 alias (f_fuel, f_fuel3);
 
@@ -162,11 +165,11 @@ parameter investment_cost(b_fuel,tech) 'Fixed investment cost for a fuel and cap
 parameter fuel_transportcost(b_fuel,i) 'variable transport cost SEK per km of fuel from region i';
 parameter fuel_transport_cost_fixed 'fixed transport cost of fuel';
 parameter p_0(blend_fuel) 'initial fuel price';
-parameter conversion_cost(g,ab) 'per tonne dm conversion cost' ;
-parameter prod_costAb(g,ab);
-parameter conversion_cost_ha(ab) 'per hectare conversion cost' ;
-scalar interceptAb /1/;
-scalar slopeAb /0.1/;
+parameter conversion_cost(g,f) 'per tonne dm conversion cost' ;
+parameter prod_costAb(g,f);
+parameter conversion_cost_ha(f) 'per hectare conversion cost' ;
+*scalar interceptAb /1/;
+*scalar slopeAb /0.1/;
 
 *technology/restrictins
 parameter conversion_factor(f,b_fuel,i) 'm^3 of fuel per tonne feedstock f, at facility at i ';
@@ -222,7 +225,7 @@ variable v_tot_demand(fuels, h) 'total demand at one location h, of any fuel (fo
 v_tot_demand.lo(b_fuel,h)=0;
 
 
-positive variable v_biofuelEmis(*,GHGcat,b_fuel,tech,i,*);
+variable v_biofuelEmis(*,GHGcat,b_fuel,tech,i,*);
 variable v_biofuelEmis_atI(i);
 variable v_fossil_emissions(f_fuel,h);
 variable v_totEmissions;

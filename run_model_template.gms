@@ -26,7 +26,7 @@ $setglobal emistarget 70
 
 
 * max relative optimality gap for MIP model solution (seem to override opt file)
-$setglobal gap 005
+$setglobal gap 50
 * reslim deafult 300, for 300 minutes (* 60)
 $setglobal reslim 1440
 
@@ -38,7 +38,7 @@ $setglobal start_value1 1
 * OPtimization working on  number of threads (deafult =1);
 $setglobal threads 6
 
-* Use gams option file (1/0)
+* Use gams option file (1/0) (osicplex.opt: CPXPARAM_Advance, CPXPARAM_Threads, CPXPARAM_MIP_Display, CPXPARAM_Emphasis_MIP, PXPARAM_MIP_Pool_Capacity, CPXPARAM_MIP_Tolerances_AbsMIPGap                0 
 $setglobal optfile 1
 
 *To use holdfixed variables file, i.e. Defining variables that should be holdfixed to zero, i.e no possible values for these as excluded from model: 1
@@ -61,7 +61,7 @@ $setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target0
 
 
 * --- Settings that can NOT  be set by scenario, as they are defined before equations
-$setglobal data data_ALA
+$setglobal data data_rev
 * Use limited part of fuel cost segments (ON/OFF)(ON default)
 $setglobal smallFuelSet ON
 
@@ -75,7 +75,7 @@ $include 'write_data.gms'
 *$offlisting
 
 * - Declaration of sets, parameters (except temporary), variables and equations
-$include 'declarations_ALA.gms'
+$include 'declarations.gms'
 
 * Define sets for non used variables (to decrease variables)
 set notusedF(f) 'feedstock that is not used in simulation' /wheat/;
@@ -132,13 +132,22 @@ deafult_emisTarget = p_emisTarget;
 * --- Run scenarios
 * ------------------------------------------------------------------------------
 *$include scen\scen_prodtarget_basedEmis10_to_100.gms
-*$include scen\scen_Emistarget_noBio_10_to_100.gms
+*$include scen\scen_Emistarget_noEth_10_to_100.gms
 *$include scen\scen_Emistarget_10_to_100.gms
 *$include scen\scen_prodtarget_10_to_100.gms
 
 
 *$include scen\scen_prodEmistarget_10_to_100.gms
-$include scen\scen_Emistarget_10_to_100.gms
+*$include scen\scen_Emistarget_10_to_100_noALA.gms
+*$include scen\scen_Emistarget_10_to_100_crpALA.gms
+
+*$include scen\scen_Emistarget_10_to_100_crpPastALA.gms
+*$include scen\scen_Emistarget_10_to_100_crpALAhigh.gms
+*$include scen\scen_Emistarget_10_to_100_crpPastALAhigh.gms
+
+*$include scen\scen_prodtarget_basedEmis10_to_100_crpPastALA.gms
+$include scen\scen_Emistarget_10_to_100_crpALALUCdiff.gms
+*$include scen\scen_Emistarget_10_to_100_crpALALUCdiff_high.gms
 
 
 
