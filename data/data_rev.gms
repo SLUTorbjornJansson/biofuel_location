@@ -119,19 +119,28 @@ parameter yield_ab(lan) 'tonne per ha';
 $load yield_ab
 $GDXIN
 
-* Load data on abandoned agricultural land
-$gdxin 'data\ALA_areas.gdx'
+
+* Load municipalty data on abandoned agricultural land
+$gdxin 'data\ALA_municiaplity_O_and_B_2016.gdx'
 $load
-parameter data_ALA_area(lan);
-$load data_ALA_area
+parameter ALA_crop(g);
+$load ALA_crop
 $GDXIN
 
+** Load data on abandoned agricultural land
+*$gdxin 'data\ALA_areas.gdx'
+*$load
+*parameter data_ALA_area(lan);
+*$load data_ALA_area
+*$GDXIN
+*
+*
+*$gdxin 'data\ALA_areas_pasture.gdx'
+*$load
+*parameter data_ALA_pasture_area(lan);
+*$load data_ALA_pasture_area
+*$GDXIN
 
-$gdxin 'data\ALA_areas_pasture.gdx'
-$load
-parameter data_ALA_pasture_area(lan);
-$load data_ALA_pasture_area
-$GDXIN
 
 
 * --- Load costs
@@ -293,28 +302,31 @@ feedstock(f,g)=feedstock_area(g,f) * yield(g,f);
 * Abandonned agricultural land (ALA)
 * --------------------------
 * Old cropl land ALA
-parameter ab_land(*) 'ALA area old crop land'; 
-* ALA is on county level. Assume in each municipality is ditributed as total agricultural area  in each county (of "total akerareal" (total agricultural area)
-ab_land(lan) = data_ALA_area(lan);
+parameter ALA_land(*) 'ALA area old crop land'; 
+* ALA is on municiaplity. 1.6% missing. add tihis manualy
+ALA_land(g) = ALA_crop(g) * 1.016;
 
+* To convert from county level
 * sum total agricultural area for county
-areaHA2(lan,"total akerareal","average15_19") = sum(g $ lan_to_kn(lan,g), areaHA2(g,"total akerareal","average15_19"));
+*areaHA2(lan,"total akerareal","average15_19") = sum(g $ lan_to_kn(lan,g), areaHA2(g,"total akerareal","average15_19"));
 
 * calculate ALA per municipality based on municipality's share of agricultual land in county (lan)
-ab_land(g)  = sum(lan$lan_to_kn(lan,g), ab_land(lan)) *
-                [areaHA2(g,"total akerareal","average15_19")/ sum(lan$ lan_to_kn(lan,g), areaHA2(lan,"total akerareal","average15_19") )];
+*ab_land(g)  = sum(lan$lan_to_kn(lan,g), ab_land(lan)) *
+*               [areaHA2(g,"total akerareal","average15_19")/ sum(lan$ lan_to_kn(lan,g), areaHA2(lan,"total akerareal","average15_19") )];
 
 
-*  Add old pasture ALA 
+*  Add old pasture ALA
+* Total old pasture from Olofsson and Börjesson 2016, p  32'
+* distribute as ab_land
 * add parameter
-parameter ab_land_pasture(*)'ALA area on pasture';
+parameter ALA_land_pasture(*)'ALA area on pasture';
 
-* ALA is on county level. Assume in each municipality is ditributed as total agricultural area  in each county (of "total akerareal" (total agricultural area)
-ab_land_pasture(lan) = data_ALA_pasture_area(lan);
 
-* calculate ALA per municipality based on municipality's share of agricultual land in county (lan)
-ab_land_pasture(g)  = sum(lan$lan_to_kn(lan,g), ab_land_pasture(lan)) *
-                [areaHA2(g,"total akerareal","average15_19")/ sum(lan $ lan_to_kn(lan,g), areaHA2(lan,"total akerareal","average15_19") )];
+ALA_land_pasture("total") = 80000;
+
+* calculate ALA per municipality based on municipality's share of crop ALA
+ALA_land_pasture(g)  = ALA_land_pasture("total") 
+        * ALA_crop(g) / sum(gg, ALA_crop(gg));
                 
 
 
@@ -328,13 +340,13 @@ yield(g,"abP1") = yield(g,"ab1");
 yield(g,"abP2") = yield(g,"ab2");
 yield(g,"abP3") = yield(g,"ab3");
 
-* Calculate feedstock levels, equal shares of total (ab_land) per cost segment ab
+* Calculate feedstock levels, equal shares of total (ala_land) per cost segment ab
 * FOr old cropland
-feedstock(ab,g) =  1/sum(aabb,1)* ab_land(g)* yield(g,ab);
+feedstock(ab,g) =  1/sum(aabb,1)* ALA_land(g)* yield(g,ab);
 
 
 * FOr old pasture
-feedstock(abP,g) =  1/sum(aabbP,1)* ab_land_pasture(g)* yield(g,abP);
+feedstock(abP,g) =  1/sum(aabbP,1)* ALA_land_pasture(g)* yield(g,abP);
 
 
 * --- test if negative feedstock
@@ -497,19 +509,20 @@ ghg_factor(f, "feedstock",g) = sum(lan$lan_to_kn(lan,g),ghg_factor(f,"feedstock"
 ghg_factor(ab, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
 ghg_factor(abP, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
 
+ghg_factor("perhectare", GHGcat,g) = ghg_factor("perhectare", GHGcat,"all");
 ghg_factor("perhectare", GHGcat,g) = sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nuts2_to_lan(nuts2,lan), ghg_factor("perhectare",GHGcat,nuts2)));
 
-* LUC from per hectare to per tonne
+* LUC, living biomass and SOC, from per hectare to per tonne
 * for old cropland
-ghg_factor(ab,GHGcat,g) $ (yield(g,ab) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) * tonne_to_Ttonne;
+ghg_factor(ab,GHGcat,g) $ yield(g,ab) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) * tonne_to_Ttonne;
 * For old pasture
 ghg_factor(abP,GHGcat,g) $ (yield(g,abP) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,abP) * tonne_to_Ttonne;
 
-* assume LUC is half no luc, half like from mnatural vegataion (i.e it wuld have been like grassland anyway, or natural vegeation)
-ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCnat",g)/2;
+* assume LUC is from cropland, half like from mnatural vegataion (i.e it wuld have been like grassland anyway, or natural vegeation)
+ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCabovecrp",g) + ghg_factor(ab,"SOCcrp",g);
 
 * for pasture, assume LUC is from natural land to grassland
-ghg_factor(abP,"LUC",g)= ghg_factor(abP,"LUCnat",g);
+ghg_factor(abP,"LUC",g)= ghg_factor(abP,"LUCabovenat",g) + ghg_factor(abP,"SOCgrassland",g);
 
 
 * To t tonne CO2 per t tonne or t m3

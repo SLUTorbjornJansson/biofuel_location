@@ -89,8 +89,14 @@ $if not exist data\fuel_delivery_2018.gdx $call 'gdxxrw data\fuel_delivery_2018.
 
 * Include regional data on ALA (to be updated if finer resolution retrived) Olofsson, J., & Börjesson, P. (2016). Nedlagd åkermark för biomassaproduktion–kartläggning och potentialuppskattning. (Report No. 2016: 01), tabell 7
 * Hectares of ALA per county, old cropland
-$if not exist data\ALA_areas.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas.gdx par=data_ALA_area rng=A3 ignoreColumns=B,C,D,E,G,H,I,J,K,L,M rDim=1'
+*$if not exist data\ALA_areas.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas.gdx par=data_ALA_area rng=A3 ignoreColumns=B,C,D,E,G,H,I,J,K,L,M rDim=1'
 
 * Hectares old pasture area, total hectares from O and B, distributed as old cropland
-$if not exist data\ALA_areas_pasture.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas_pasture.gdx par=data_ALA_pasture_area rng=pasture!A3 ignoreColumns=B rDim=1'
+*$if not exist data\ALA_areas_pasture.gdx $call 'gdxxrw data\ALA_areas.xlsx output=data\ALA_areas_pasture.gdx par=data_ALA_pasture_area rng=pasture!A3 ignoreColumns=B rDim=1'
+
+
+* Include municipality data on ALA (from shapefiles mainyípulated, from  Olofsson, J., & Börjesson, P. (2016). Nedlagd åkermark för biomassaproduktion–kartläggning och potentialuppskattning. (Report No. 2016: 01),
+* about 1.6% of ALA not assigned to a municiplaity- might be added as a markup
+* Hectares of ALA per county, old cropland
+$if not exist data\ALA_municiaplity_O_and_B_2016.gdx $call 'gdxxrw data\ALA_municiaplity_O_and_B_2016.xlsx output=data\ALA_municiaplity_O_and_B_2016.gdx par=ALA_crop rng=A2 ignoreColumns=B,C,D,E,F,G,H,I,J,K,L,M,O,P rDim=1'
 
