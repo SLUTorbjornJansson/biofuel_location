@@ -1,6 +1,6 @@
 * Scenario
 * Run all levels for GHG, + 35 and 45%
-$setglobal scen _crpALAhigh_7okt
+$setglobal scen _crpALAhigh_28nov
 
 * reach climate target based on 35% reduction of current gasoline emissions (half of 70% target)
 * Use new demand

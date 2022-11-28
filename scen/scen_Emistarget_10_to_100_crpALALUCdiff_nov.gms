@@ -1,13 +1,13 @@
 * Scenario
 * Run all levels for GHG, + 35 and 45%
-$setglobal scen _crpALALUCdiff_test
+$setglobal scen _crpALALUCdiff_28nov
 
 * reach climate target based on 35% reduction of current gasoline emissions (half of 70% target)
 * Use new demand
 
 
 $setglobal endoDemand ON
-*$setglobal optfile 1
+$setglobal optfile 1
 $setglobal level 00
 $setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget100_7feb.gdx
 

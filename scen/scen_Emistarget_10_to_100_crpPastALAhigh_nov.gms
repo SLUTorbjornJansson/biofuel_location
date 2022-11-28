@@ -1,6 +1,6 @@
 * Scenario
 * Run all levels for GHG, + 35 and 45%
-$setglobal scen _crpPastALA_28nov
+$setglobal scen _crpPastALAhigh_28nov
 
 * reach climate target based on 35% reduction of current gasoline emissions (half of 70% target)
 * Use new demand
@@ -49,7 +49,6 @@ $include 'scenario_setting.gms' ;
 * reset emission target
 p_emisTarget = deafult_emisTarget;
 
-$offte
 
 *  --- 20 %
 * --------------------------------------------------------------------------------
@@ -84,7 +83,7 @@ $include 'scenario_setting.gms' ;
 p_emisTarget = deafult_emisTarget;
 
 
-$ontext
+
 *  --- 35 %
 * --------------------------------------------------------------------------------
 $setglobal emistarget 35
@@ -107,6 +106,11 @@ $offtext
 * --------------------------------------------------------------------------------
 $setglobal emistarget 40
 
+*v_feedstock.fx(abP, b_fuel,tech,i,g) = 0;
+
+* Double ALA area
+feedstock(ab,g)= feedstock(ab,g)* 2;
+feedstock(abP,g)= feedstock(abP,g)* 2;
 * Assume emissions from gasoline and diesel should decrease by 70%
 * assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
 
@@ -277,3 +281,7 @@ v_feedstock.lo(ab,b_fuel,tech,i,g) = 0;
 v_feedstock.up(ab,b_fuel,tech,i,g) = +inf;
 v_feedstock.lo(abP,b_fuel,tech,i,g) = 0;
 v_feedstock.up(abP,b_fuel,tech,i,g) = +inf;
+
+* Reset ALA area
+feedstock(ab,g)= feedstock(ab,g)/ 2;
+feedstock(abP,g)= feedstock(abP,g)/ 2;

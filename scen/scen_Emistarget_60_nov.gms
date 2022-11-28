@@ -1,13 +1,11 @@
 * Scenario
 * Run all levels for GHG, + 35 and 45%
-$setglobal scen _crpPastALA_28nov
+$setglobal scen _28nov
 
 * reach climate target based on 35% reduction of current gasoline emissions (half of 70% target)
 * Use new demand
 
-* ALA from cropland and pasture
-
-
+* NO ab fedstock
 
 $setglobal endoDemand ON
 $setglobal optfile 1
@@ -48,13 +46,14 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
-
-$offte
+*$offtext
 
 *  --- 20 %
 * --------------------------------------------------------------------------------
 $setglobal emistarget 20
 
+v_feedstock.fx(ab, b_fuel,tech,i,g) = 0;
+v_feedstock.fx(abP, b_fuel,tech,i,g) = 0;
 * Assume emissions from gasoline and diesel should decrease by 70%
 * assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
 
@@ -66,6 +65,8 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
+
+$ontext
 
 *  --- 30 %
 * --------------------------------------------------------------------------------
@@ -83,8 +84,6 @@ $include 'scenario_setting.gms' ;
 * reset emission target
 p_emisTarget = deafult_emisTarget;
 
-
-$ontext
 *  --- 35 %
 * --------------------------------------------------------------------------------
 $setglobal emistarget 35
@@ -100,12 +99,15 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
-$offtext
 
+*$offtext
 
 *  --- 40 %
 * --------------------------------------------------------------------------------
 $setglobal emistarget 40
+
+v_feedstock.fx(ab, b_fuel,tech,i,g) = 0;
+v_feedstock.fx(abP, b_fuel,tech,i,g) = 0;
 
 * Assume emissions from gasoline and diesel should decrease by 70%
 * assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
@@ -154,9 +156,14 @@ $include 'scenario_setting.gms' ;
 * reset emission target
 p_emisTarget = deafult_emisTarget;
 
+
+$offtext
 *  --- 60 %
 * --------------------------------------------------------------------------------
 $setglobal emistarget 60
+
+v_feedstock.fx(ab, b_fuel,tech,i,g) = 0;
+v_feedstock.fx(abP, b_fuel,tech,i,g) = 0;
 
 * Assume emissions from gasoline and diesel should decrease by 70%
 * assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
@@ -169,6 +176,8 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
+
+$ontext
 
 *  --- 70 %
 * --------------------------------------------------------------------------------
@@ -253,7 +262,7 @@ $include 'scenario_setting.gms' ;
 * reset emission target
 p_emisTarget = deafult_emisTarget;
 
-$ontext
+
 
 *  --- 250 %
 * --------------------------------------------------------------------------------
@@ -270,10 +279,3 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
-$offtext
-
-* Reset bound on ALA
-v_feedstock.lo(ab,b_fuel,tech,i,g) = 0;
-v_feedstock.up(ab,b_fuel,tech,i,g) = +inf;
-v_feedstock.lo(abP,b_fuel,tech,i,g) = 0;
-v_feedstock.up(abP,b_fuel,tech,i,g) = +inf;
