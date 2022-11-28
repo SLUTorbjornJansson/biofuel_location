@@ -136,7 +136,7 @@ p_ghg("allGasoline", "SE")=p_ghg("all", "SE")+p_ghg('gasoline', "SE");
 
 * --- UNload results ----
 
-execute_unload 'results\results_%data%_Endo%endodemand%_distr%distributeBiofuel%_gap%gap%_target%level%_emistarget%emistarget%%scen%.gdx'
+execute_unload '%results_out%\results_%data%_Endo%endodemand%_distr%distributeBiofuel%_gap%gap%_target%level%_emistarget%emistarget%%scen%.gdx'
 v_feedstock v_y_sales v_y
 v_transport_cost v_feedstock_cost J v_production_cost v_tot_cost v_fueltransport_cost
 v_tot_demand v_tot_feedstock

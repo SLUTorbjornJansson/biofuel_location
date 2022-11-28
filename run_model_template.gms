@@ -26,7 +26,7 @@ $setglobal emistarget 70
 
 
 * max relative optimality gap for MIP model solution (seem to override opt file)
-$setglobal gap 50
+$setglobal gap 005
 * reslim deafult 300, for 300 minutes (* 60)
 $setglobal reslim 1440
 
@@ -36,7 +36,7 @@ $setglobal mipstart 1
 $setglobal start_value1 1
 
 * OPtimization working on  number of threads (deafult =1);
-$setglobal threads 6
+$setglobal threads 5
 
 * Use gams option file (1/0) (osicplex.opt: CPXPARAM_Advance, CPXPARAM_Threads, CPXPARAM_MIP_Display, CPXPARAM_Emphasis_MIP, PXPARAM_MIP_Pool_Capacity, CPXPARAM_MIP_Tolerances_AbsMIPGap                0 
 $setglobal optfile 1
@@ -120,12 +120,13 @@ $include 'equations.gms'
 
 
 * --- Check some data
-$include checks.gms
+*$include checks.gms
 
 
 * Set a deafult emission target to be able to reset
 parameter deafult_emisTarget;
 deafult_emisTarget = p_emisTarget;
+*execute_unload "%results_out%\res.gdx" deafult_emisTarget;
 
 
 * ---------------------------------------
@@ -146,7 +147,7 @@ deafult_emisTarget = p_emisTarget;
 *$include scen\scen_Emistarget_10_to_100_crpPastALAhigh.gms
 
 *$include scen\scen_prodtarget_basedEmis10_to_100_crpPastALA.gms
-$include scen\scen_Emistarget_10_to_100_crpALALUCdiff.gms
+$include scen\%scenariofile%.gms
 *$include scen\scen_Emistarget_10_to_100_crpALALUCdiff_high.gms
 
 
