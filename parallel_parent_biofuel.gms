@@ -5,9 +5,7 @@
 
 
 * --- Start parallel gams processes that don't interfere with each other
-*set s "Process, e.g. scenario run" /scen_Emistarget_10_to_100_crpALALUCdiff, scen_Emistarget_10_to_100_crpALA/;
-*$setglobal s1 gap005_target00_emistarget40_7feb                 
-*$setglobal s2 gap02_target00_emistarget40_crpALA_7okt        
+
 
 set s "Process, e.g. scenario run" /s1 'scen_Emistarget_20_nov'
                                     s2 'scen_Emistarget_40_nov'
@@ -16,9 +14,9 @@ set s "Process, e.g. scenario run" /s1 'scen_Emistarget_20_nov'
                                     s5 'scen_Emistarget_40_crpALA_nov'
                                     s6 'scen_Emistarget_60_crpALA_nov'
                                     s7 'scen_Emistarget_10_to_100_crpALAhigh_nov'
-*                                    s8 'scen_Emistarget_10_to_100_crpPastALA_nov'
-*                                    s9 'scen_Emistarget_10_to_100_crpPastALAhigh_nov'
-*                                    s10 'scen_Emistarget_10_to_100_crpALALUCdiff_nov'
+                                    s8 'scen_Emistarget_10_to_100_crpPastALA_nov'
+                                    s9 'scen_Emistarget_10_to_100_crpPastALAhigh_nov'
+                                    s10 'scen_Emistarget_10_to_100_crpALALUCdiff_nov'
                                     /;
 
 
@@ -57,7 +55,7 @@ loop(s,
                           ' seed=' n:0
                           ' o=model-':0 s.tl:0 '.lst'
                           ' --flag=%sd%\started-':0 s.tl:0 '.flag':0
-                          ' --scenariofile=' s.te(s):0
+                          ' --scenariofile=' s.te(s):0;
 *                          ' --scenario2=' s.tl:0;
                           
 
@@ -70,7 +68,7 @@ loop(s,
 * arg 1 how many seconds to wait in each check (e.g. 1 second)
 * arg 2 how many times to check (eg 120 = 2 minutes waiting max)
 
-execute.checkErrorLevel "=utils\taskSync.bat 1 12 %sd%\started-*.flag";
+execute.checkErrorLevel "=utils\taskSync.bat 1 90000 %sd%\started-*.flag";
 
 $exit
 set i /i1*i100/;

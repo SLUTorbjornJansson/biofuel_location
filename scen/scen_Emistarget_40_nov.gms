@@ -279,3 +279,4 @@ $include 'scenario_setting.gms' ;
 * --- Reset ---
 * reset emission target
 p_emisTarget = deafult_emisTarget;
+$offtext

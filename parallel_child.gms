@@ -18,7 +18,7 @@ display "Flag file = %flag%";
 *$set scenfile scen_Emistarget_10_to_100_crpALALUCdiff
 
 
-display "scen är %scenario2%";
+display "scen är %scenariofile%";
 
 $include run_model_template.gms
 
