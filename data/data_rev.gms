@@ -411,7 +411,6 @@ cost_feedstock(ab,g)= prod_costAb(g,ab) + conversion_cost(g,ab);
 cost_feedstock(abP,g)= prod_costAb(g,abP) + conversion_cost(g,abP);
 
 
-
 * --- Production costs, per t tonne of feedstock
 * Lin et al. (2013), Lin, T., Rodríguez, L. F., Shastri, Y. N., Hansen, A.C. and Ting, KC. (2013). GIS‐enabled biomass‐ethanol
 * supply chain optimization: model development and Miscanthus application. Biofuels, Bioproducts and Biorefining 7:314-333.
@@ -502,17 +501,30 @@ max_target("ethanol") = 1700;
 
 
 
-* --- GHG emissions 
+* --- GHG emissions
+* Add lost alternative emissions reduction on ALA
+* From Naess et al. 2023. Climate change mitigation potentials of biofuels produced from perennial crops and natural regrowth on abandoned and degraded cropland in Nordic countries
+* p 8 : "For comparisons, natural regrowth achieved a lower average of 􀀀 5.9 ± 3.5 tCO2eq ha􀀀 1 year􀀀 1 on abandoned cropland".
+
+parameter p_alternativeEmis(g,ab);
+
+
+
+
 
 * to municipality level
+* in kg CO2 per M3 or Kg CO2 per tonne
 ghg_factor(f, "feedstock",g) = sum(lan$lan_to_kn(lan,g),ghg_factor(f,"feedstock",lan));
 ghg_factor(ab, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
 ghg_factor(abP, "feedstock",g) = ghg_factor("grass1", "feedstock",g);
 
+* in Kg CO2 per hecater
 ghg_factor("perhectare", GHGcat,g) = ghg_factor("perhectare", GHGcat,"all");
-ghg_factor("perhectare", GHGcat,g) = sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nuts2_to_lan(nuts2,lan), ghg_factor("perhectare",GHGcat,nuts2)));
 
-* LUC, living biomass and SOC, from per hectare to per tonne
+ghg_factor("perhectare", GHGcat,g) $ (sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nuts2_to_lan(nuts2,lan), ghg_factor("perhectare",GHGcat,nuts2))))
+    = sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nuts2_to_lan(nuts2,lan), ghg_factor("perhectare",GHGcat,nuts2)));
+
+* LUC, living biomass and SOC, from per hectare to per tonne. yield is in t tonne per hectare. thus conversion
 * for old cropland
 ghg_factor(ab,GHGcat,g) $ yield(g,ab) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) * tonne_to_Ttonne;
 * For old pasture
@@ -525,10 +537,9 @@ ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCabovecrp",g) + ghg_factor(ab,"SOCcrp",
 ghg_factor(abP,"LUC",g)= ghg_factor(abP,"LUCabovenat",g) + ghg_factor(abP,"SOCgrassland",g);
 
 
-* To t tonne CO2 per t tonne or t m3
+* From kg CO2 per tonne To t tonne CO2 per t tonne or t m3
 ghg_factor(f,GHGcat,g) = ghg_factor(f,GHGcat,g) / tonne_to_Ttonne * kg_to_Ttonne;
 ghg_factor("all",GHGcat,"all") = ghg_factor("all",GHGcat,"all")/ tonne_to_Ttonne * kg_to_Ttonne;
-
 
 
 * ------------ Demand modelling-----------

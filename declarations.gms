@@ -60,7 +60,7 @@ set abP(f) 'subset of ALA on old pasture . Can have different properties' /abP1,
 
 
 
-set GHGcat /feedstock, production, investment, transport, distribution, LUC, LUCabovenat, LUCabovecrp, SOCcrp, SOCgrassland, all, gasolineSubs, dieselSubs, gasoline, diesel, allgasoline, carbonstock/;
+set GHGcat /feedstock, production, investment, transport, distribution, LUC, LUCabovenat, LUCabovecrp, SOCcrp, SOCgrassland, altEmisALA, all, gasolineSubs, dieselSubs, gasoline, diesel, allgasoline, carbonstock/;
 
 
 set fuel_blend(blend_fuel,fuels) 'mapping fuel that can be blended in each blend'
