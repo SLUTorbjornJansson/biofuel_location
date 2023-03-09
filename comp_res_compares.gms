@@ -11,9 +11,16 @@ $if exist '%path%%file8%.gdx '$batinclude load_scen_res.gms 8 %file8%
 $if exist '%path%%file9%.gdx '$batinclude load_scen_res.gms 9 %file9%
 $if exist '%path%%file10%.gdx' $batinclude load_scen_res.gms 10 %file10%
 $if exist '%path%%file11%.gdx' $batinclude load_scen_res.gms 11 %file11%
+$if exist '%path%%file12%.gdx' $batinclude load_scen_res.gms 12 %file12%
+$if exist '%path%%file13%.gdx' $batinclude load_scen_res.gms 13 %file13%
+$if exist '%path%%file14%.gdx' $batinclude load_scen_res.gms 14 %file14%
+$if exist '%path%%file15%.gdx' $batinclude load_scen_res.gms 15 %file15%
+$if exist '%path%%file16%.gdx' $batinclude load_scen_res.gms 16 %file16%
+$if exist '%path%%file17%.gdx' $batinclude load_scen_res.gms 17 %file17%
 
 
 *$ontext
+* ---- Compare differnt scenarios
 
 parameter prod_comp(*, b_fuel,*,*,scen);
 
