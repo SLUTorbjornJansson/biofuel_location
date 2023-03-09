@@ -72,7 +72,7 @@ v_totEmissions
 v_tot_cost
 
 v_yEnergy
-v_blend_rate
+*v_blend_rate
 v_endY
 v_redY_cost
 

@@ -3,19 +3,20 @@
 *
 * declaration of parameter, sets, variables, equations
 * ---------------------------------
-* create sets to use for model
-parameter dist;
+
+* --- create sets to use for model
 
 set kn_map(*,*);
 set knkod;
 set objectid;
 
+* load set from data
 $gdxin 'data\municip_scb.gdx'
 $load knkod
 $gdxin
 
-* load map municipality to county
-$gdxin 'data\kommunlankod_1219_modified.gdx'
+* load regional sets and mappings
+$gdxin 'data\kommunlankod_1219_SCB.gdx'
 $load
 sets
 lan
@@ -57,16 +58,17 @@ set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 *set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 
 
-set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3/;
+set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
 set grass(f) 'feedstock from ley land' /grass1,grass2,grass3/;
 set ab(f) 'subset of abandonned land' /ab1, ab2, ab3/;
+set abP(f) 'subset of ALA on old pasture . Can have different properties' /abP1, abP2, abP3 /;
 
 *set f_fuel 'fossil fuels' /gasoline,ethanolE,gasE,diesel,dieB/;
 
 *set fuel_to_fossil(b_fuel,f_fuel) 'mapping from fuel to fossil fuel'/
 *         ethanol.ethanolE
 *         /;
-set GHGcat /feedstock, production, investment, transport, distribution, LUC, LUCnat, LUCcrp, all, gasolineSubs, dieselSubs, gasoline, diesel, allgasoline, carbonstock/;
+set GHGcat /feedstock, production, investment, transport, distribution, LUC, LUCabovenat, LUCabovecrp, SOCcrp, SOCgrassland, altEmisALA, all, gasolineSubs, dieselSubs, gasoline, diesel, allgasoline, carbonstock/;
 
 
 set fuel_blend(blend_fuel,fuels) /gasE.ethanol
@@ -139,14 +141,19 @@ set end_fuel_map(end_fuel, blend_fuel)
          /;
 $offtext
 
+
 * Alias to be able to allow summations
 alias (i,ii);
 alias (g,gg);
 alias (h,hh);
 alias(f,ff);
 alias(ab,aabb);
+alias(abP, aabbP);
+alias (f_fuel,f_fuelb);
+alias (f_fuel, f_fuel3);
 
 * --- Declare parameters
+
 * distances
 parameter distance(i,g)'Distance between feedstock region g and facility region i';
 parameter distance_demand(i,h)'Distance betseen a faciality location i and demand point h';
@@ -162,6 +169,12 @@ parameter investment_cost_var(b_fuel,tech)'Variable investment cost per year, pe
 parameter investment_cost(b_fuel,tech) 'Fixed investment cost for a fuel and capacity level, annulized ';
 parameter fuel_transportcost(b_fuel,i) 'variable transport cost SEK per km of fuel from region i';
 parameter fuel_transport_cost_fixed 'fixed transport cost of fuel';
+parameter p_0(blend_fuel) 'initial fuel price';
+parameter conversion_cost(g,f) 'per tonne dm conversion cost' ;
+parameter prod_costAb(g,f);
+parameter conversion_cost_ha(f) 'per hectare conversion cost' ;
+*scalar interceptAb /1/;
+*scalar slopeAb /0.1/;
 
 *technology/restrictins
 parameter conversion_factor(f,b_fuel,i) 'm^3 of fuel per tonne feedstock f, at facility at i ';
@@ -171,46 +184,32 @@ parameter min_demand(b_fuel,h) 'minimum fuel demand in demand region h';
 parameter capacity_constraint_up(b_fuel,tech,i) 'maximum capacity of production of a fuel at facility i, in m^3';
 parameter capacity_constraint_lo(b_fuel,tech,i) 'minimium capacity of production of a fuel at facility i, in m^3';
 parameter facilitySuitability(b_fuel,tech,i) 'facility sutability indicator, 1 or 0, ';
+parameter max_target(b_fuel) 'Max biofuel production target in thousand m3 biofuel';
 parameter p_prodTarget(b_fuel) 'Target value of production of a fuel in the whole region, m^3';
 parameter p_emisTarget 'Target value for emission reduction in the whole region, kg CO2eq';
 parameter max_target(b_fuel) 'max target level of all scenarios';
 parameter yield(g,f) 'yield per hectar in 1000 kg (dry weight)' ;
+parameter area_factor(f,g) 'how large share of land can be used for biofuel for each cost category';
+parameter feedstock_area(g,f) 'max area (HA) that can be used to grow crop f in region g';
 
 parameter energy_ekv(fuels) 'multiplicator for t m3 to TJ';
+parameter fuel_ekv(b_fuel,blend_fuel);
+parameter blend_cap(blend_fuel,h) 'max blending of biofuel into fossil fuel';
+parameter carbon_change(g,f) 'change in carbon stock from abanndonned to energy crop';
+parameter GHG_factor(*,*,*)'emission factors, kg per m3(for fuel) or tonne  (for feedstock)';
+parameter max_redY(end_fuel_Large, h) 'max level of reduction of this end fuel';
+parameter min_redY(end_fuel_Large, h) 'min level of reduction of this end fuel';
+parameter f_fuel_0(blend_fuel,h) 'Initial levels of fossil fuels in TJ';
+parameter fuelUse_0_Tm3(h,fuels) 'initial fossil fuel use in thousand m3';
+parameter p_0(blend_fuel) 'initial price for fossil fuels';
+parameter md_consumer(end_fuel_Large, h) 'marginal demand consumer, per end use fuel, piecewise linear';
 
 
 * modelling constriants for easiness
-parameter facility_max(tech);
+parameter p_facility_max(tech);
 scalar distance_max;
-scalar max_facilityReg;
-
-
-*paper 2 parmaeters
-
-parameter fuel_ekv(b_fuel,blend_fuel);
-parameter blend_cap(blend_fuel,h) 'max blending of biofuel into fossil fuel';
-*parameter demand_intercept(f_fuel,h) 'intercept of inverse regional demand function';
-*parameter demand_slope(f_fuel,h) 'slope of inverse regional demand function';
-parameter p_0(blend_fuel) 'initial fuel price';
-
-
-parameter conversion_cost_ha(ab) 'per hectare conversion cost' ;
-scalar interceptAb /1/;
-scalar slopeAb /0.1/;
-
-parameter conversion_cost(g,ab) 'per tonne dm conversion cost' ;
-parameter prod_costAb(g,ab);
-parameter carbon_change(g,f) 'change in carbon stock from abanndonned to energy crop';
-*parameter p_ghg(GHGcat,*)'ghg in a facility region i, per category';
-parameter GHG_factor(*,*,*)'emission factors, kg per m3(for fuel) or tonne  (for feedstock)';
-
-parameter max_redY(end_fuel_Large, h) 'max level of reduction of this end fuel';
-parameter min_redY(end_fuel_Large, h) 'min level of reduction of this end fuel';
-
-alias (f_fuel,f_fuelb);
-alias (f_fuel, f_fuel3);
-
-parameter p_noeth;
+scalar p_max_facilityReg;
+parameter p_noBio;
 * ---------------------------------
 *  Declaration of variables
 * ---------------------------------
@@ -228,7 +227,7 @@ variable v_tot_demand(fuels, h) 'total demand at one location h, of any fuel (fo
 v_tot_demand.lo(b_fuel,h)=0;
 
 
-positive variable v_biofuelEmis(*,GHGcat,b_fuel,tech,i,*);
+variable v_biofuelEmis(*,GHGcat,b_fuel,tech,i,*);
 variable v_biofuelEmis_atI(i);
 variable v_fossil_emissions(f_fuel,h);
 variable v_totEmissions;
@@ -240,14 +239,17 @@ variable v_tot_cost 'total cost';
 positive variable J(b_fuel,tech,i) 'Investment decision';
 
 
-* paper 2 variables
 variable v_yEnergy(blend_fuel,h) 'fuels expressed in energy equivalents';
-positive variable v_blend_rate(blend_fuel,h) 'blending rate of biofuel into fossil fuel';
-*variable v_price(f_fuel);
+*positive variable v_blend_rate(blend_fuel,h) 'blending rate of biofuel into fossil fuel';
+
 variable v_endY(end_fuel_Large,h) 'end use fuel, i.e. possibly fossil mixed with biofuel, GJ';
 
+variable v_redY_fossilCostGainRed(h) 'Gain for reducing fossil fuel use, part connected to total reduction in fuel use (as we typically loock at reductions)';
+variable v_redY_fossilCostGainBio(h) 'Gain for reducing fossil fuel use, part connected to biofuel replacement (as we typically loock at reductions)';
+variable v_redY_consLoss(h)  'Consumer losses of reduced fuel use, excluding reduced purchase costs';
 
 variable v_redY_cost(h) 'consumer surplus cost for reducing fuel';
+
 
 
 
@@ -298,17 +300,17 @@ equation eq_biofuelEmissions(i);
 equation eq_TotEmissions;
 
 
-* paper 2 equations
+*  fuel consumption equations
 equation eq_energyEkv(blend_fuel,h) 'tranforming fuels to energy content';
 equation eq_blendCap(blend_fuel,h) 'quantity energy biofuel should be less than a cap of the total blended fuel';
 
-equation end_uses(blend_fuel,h) 'each end fuel can be of one of several fuel segments with differnt consumer surplus cost';
+equation eq_end_uses(blend_fuel,h) 'each end fuel can be of one of several fuel segments with differnt consumer surplus cost';
 equation eq_redY_max(end_fuel_Large, h);
 equation eq_redY_min(end_fuel_Large, h);
 
+equation eq_redY_fossilCostGainRed(h) 'equation defining v_redY_fossilCostGainRed(h)' ;
+equation eq_redY_fossilCostGainBio(h) 'equation defining v_redY_fossilCostGainBio(h)' ;
+equation eq_redY_consLoss(h) 'equation defining v_redY_consLoss(h)' ;
 equation eq_redYCost(h) 'welfare cost for changing fuel consumption';
-*equation eq_blending(blend_fuel,h) 'blending fuels of differnt types';
 
-*equation eq_blendCap(blend_fuel,h) 'quantity energy biofuel should be less than a cap of the total blended fuel';
-*equation eq_demandCost(h);
 

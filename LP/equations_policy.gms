@@ -84,10 +84,9 @@ v_y(b_fuel,tech,i)
 =g= capacity_constraint_lo(b_fuel,tech,i) * J(b_fuel,tech,i);
 
 * demand restriction. All production must be sold to a point h
-
-
 eq_demandEq(b_fuel,tech,i)$ p_distributeBiofuel..
 v_y(b_fuel,tech,i) =e= sum(h, v_y_sales(b_fuel,tech,i,h));
+
 
 eq_tot_demand(b_fuel,h)$ p_distributeBiofuel..
 v_tot_demand(b_fuel, h) =e= sum((tech,i), v_y_sales(b_fuel,tech,i,h));
@@ -121,20 +120,31 @@ v_yEnergy(blend_fuel,h) =e= sum(fuels $ fuel_blend(blend_fuel,fuels), energy_ekv
 eq_blendCap(blend_fuel,h )$ p_useEndoDemand..
 sum(b_fuel $ fuel_blend(blend_fuel,b_fuel), energy_ekv(b_fuel) * v_tot_demand(b_fuel, h)) =l= blend_cap(blend_fuel,h) * (f_fuel_0(blend_fuel,h) +v_yEnergy(blend_fuel,h));
 
-end_uses(blend_fuel,h) $ p_useEndoDemand..
+eq_end_uses(blend_fuel,h) $ p_useEndoDemand..
 v_yEnergy(blend_fuel,h) =e= sum(end_fuel $ end_fuel_map(end_fuel, blend_fuel), v_endY(end_fuel,h));
 
 eq_redY_max(end_fuel, h) $ p_useEndoDemand..
 v_endY(end_fuel,h) =g= max_redY(end_fuel, h);
 
+v_endY.lo(end_fuel,h) =max_redY(end_fuel, h);
+
 eq_redY_min(end_fuel, h) $ p_useEndoDemand..
 v_endY(end_fuel,h) =l= min_redY(end_fuel, h);
+v_endY.up(end_fuel,h) = min_redY(end_fuel, h);
+
+* Equations defining differnt parts of cost (and benefits) of decreasing fuel use         
+eq_redY_fossilCostGainRed(h) ..
+v_redY_fossilCostGainRed(h) =e= sum(end_fuel, sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), p_0(blend_fuel)) * v_endY(end_fuel,h));
+
+eq_redY_fossilCostGainBio(h)..
+v_redY_fossilCostGainBio(h) =e= - sum(b_fuel, sum(blend_fuel $ fuel_blend(blend_fuel,b_fuel), p_0(blend_fuel)) * energy_ekv(b_fuel) * v_tot_demand(b_fuel, h));
+
+eq_redY_consLoss(h)..
+v_redY_consLoss(h) =e= - sum(end_fuel, md_consumer(end_fuel, h) * v_endY(end_fuel,h));
 
 eq_redYCost(h) $ p_useEndoDemand..
-v_redY_cost(h) =e= - sum(b_fuel, sum(blend_fuel $ fuel_blend(blend_fuel,b_fuel), p_0(blend_fuel)) * energy_ekv(b_fuel) * v_tot_demand(b_fuel, h))
-                 + sum(end_fuel, sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), p_0(blend_fuel)) * v_endY(end_fuel,h))
-                 - sum(end_fuel, md_consumer(end_fuel, h) * v_endY(end_fuel,h));
 
+v_redY_cost(h) =e= v_redY_fossilCostGainRed(h) + v_redY_fossilCostGainBio(h) + v_redY_consLoss(h);
 
 * --- Emissions
 
@@ -227,7 +237,8 @@ emis_tax = 0;
 location_subsidy(b_fuel,tech,i) = 0;
 
 eq_tot_cost..
-    v_tot_cost =e= sum((b_fuel,tech,i), v_production_cost(b_fuel,tech,i)+ v_feedstock_cost(b_fuel,tech,i)
+    v_tot_cost =e=
+   sum((b_fuel,tech,i), v_production_cost(b_fuel,tech,i)+ v_feedstock_cost(b_fuel,tech,i)
     + v_transport_cost(b_fuel,tech,i)
 * WHen demand  active - transport costs in objective
 
@@ -254,13 +265,13 @@ e_J(b_fuel,tech)..
 *-v_art6(b_fuel,tech,i)
 )
 *=g= 0
-=l= facility_max(tech)
+=l= p_facility_max(tech)
 ;
 
 * Restrict to at most one tech level type of facility (fuel type) per region
 
 eq_facilityRestrictionTech(b_fuel,i)..
-    sum(tech, J(b_fuel,tech,i)) =l= max_facilityReg;
+    sum(tech, J(b_fuel,tech,i)) =l= p_max_facilityReg;
 
 * Restrict to only one type of fuel per facility...
 * not ready
