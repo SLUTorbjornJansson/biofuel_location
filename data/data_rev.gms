@@ -47,7 +47,8 @@ dist3(knkod,knkod2)= sum(objectid $ kn_map(objectid,knkod2),dist2(knkod, objecti
 *write distance to the between supply and facility distance, and from facility to demand region
 execute_unload 'data\dist_temp.gdx' dist2 dist3;
 option kill = dist2;
-execute_load 'data\dist_temp.gdx' distance=dist3 distance_demand=dist3;
+parameter distance_facility(i,ii);
+execute_load 'data\dist_temp.gdx' distance=dist3 distance_demand=dist3 distance_facility=dist3;
 
 * Half radius of municipalities could be used for withint municipality distances
 $gdxin 'data\municipality_areas_radius.gdx'
@@ -215,6 +216,16 @@ parameter elas_fuel(*,blend_fuel) 'Demand elasticities for fossil fuels (assumed
 $gdxin 'data\fuel_elasticities.gdx'
 $load
 $load elas_fuel
+$GDXIN
+
+
+* Model speed up data
+* --- Data on municipalities with coastal borders, except northern Sweden, or borders to Norway + Finland, or densly populated Stockholm area.
+* Used to identify not suitable  refions for facilites
+$gdxin 'data\border_municipalities.gdx'
+$load
+Parameter borderAndCityMunicipality(i);
+$load borderAndCityMunicipality
 $GDXIN
 
 
@@ -528,7 +539,7 @@ ghg_factor("perhectare", GHGcat,g) $ (sum(lan$lan_to_kn(lan,g),  sum(nuts2 $ nut
 * for old cropland
 ghg_factor(ab,GHGcat,g) $ yield(g,ab) = ghg_factor("perhectare", GHGcat,g) / yield(g,ab) * tonne_to_Ttonne;
 * For old pasture
-ghg_factor(abP,GHGcat,g) $ (yield(g,abP) and ghg_factor("perhectare",GHGcat,g)) = ghg_factor("perhectare", GHGcat,g) / yield(g,abP) * tonne_to_Ttonne;
+ghg_factor(abP,GHGcat,g) $ yield(g,abP)= ghg_factor("perhectare", GHGcat,g) / yield(g,abP) * tonne_to_Ttonne;
 
 * assume LUC is from cropland, half like from mnatural vegataion (i.e it wuld have been like grassland anyway, or natural vegeation)
 ghg_factor(ab,"LUC",g)= ghg_factor(ab,"LUCabovecrp",g) + ghg_factor(ab,"SOCcrp",g);

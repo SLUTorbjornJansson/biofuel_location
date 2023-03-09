@@ -162,9 +162,9 @@ v_biofuelEmis(f,"transport",b_fuel,tech,i,g) =e= v_feedstock(f,b_fuel,tech,i,g)*
 eq_EDistribution(b_fuel,tech,i,h) $ p_distributeBiofuel..
 v_biofuelEmis("all","distribution",b_fuel,tech,i,h) =e= v_y_sales(b_fuel,tech,i,h)* distance_demand(i,h)*ghg_factor("all", "distribution","all");
 
-eq_ELUC(ab,b_fuel,tech,i,g)..
+eq_ELUC(f,b_fuel,tech,i,g)..
 * will only take abanndonned land as ony these have carbon stock changes
-v_biofuelEmis(ab,"LUC",b_fuel,tech, i,g) =e=  v_feedstock(ab,b_fuel,tech,i,g)  * ghg_factor(ab,"LUC",g);
+v_biofuelEmis(f,"LUC",b_fuel,tech, i,g) =e=  v_feedstock(f,b_fuel,tech,i,g)  * ghg_factor(f,"LUC",g);
 
 * equation for fossil emission decrease, when endogenous demand not used
 eq_EFossilSubs(b_fuel,tech,i,h) $ (p_distributeBiofuel and not p_useEndoDemand)..
@@ -185,7 +185,7 @@ eq_biofuelEmissions(i)..
 v_biofuelEmis_atI(i) =e= 
 sum(GHGcat,
                     sum((f,b_fuel,tech,g),v_biofuelEmis(f,GHGcat,b_fuel,tech,i,g)) $ [sameas(GHGcat,"feedstock") or sameas(GHGcat,"transport")]
-                  + sum((ab,b_fuel,tech,g), v_biofuelEmis(ab,GHGcat,b_fuel,tech, i,g)) $ [sameas(GHGcat,"LUC")]
+                  + sum((f,b_fuel,tech,g), v_biofuelEmis(f,GHGcat,b_fuel,tech, i,g)) $ [sameas(GHGcat,"LUC")]
                   + sum((b_fuel,tech), v_biofuelEmis("all",GHGcat,b_fuel,tech,i,"all"))  $ [sameas(GHGcat,"production") or sameas(GHGcat,"investment")]
                   + sum((b_fuel,tech,h), v_biofuelEmis("all",GHGcat,b_fuel,tech,i,h))  $ [sameas(GHGcat,"distribution")]
                   + sum((b_fuel, tech,h), v_biofuelEmis("all",GHGcat,b_fuel,tech,i,h))$ [(p_distributeBiofuel and not p_useEndoDemand)  and (sameas(GHGcat,"gasolineSubs") or sameas(GHGcat,"dieselSubs"))]
@@ -257,16 +257,36 @@ eq_facilityRestrictionFeed(b_fuel, tech, i)..
 
 * If 1, it is suitable, otherwise zero and non-suitable. Possibility to exclude facility sites
 eq_facility_suitability(b_fuel,tech,i)..
-    J(b_fuel,tech,i) =l= facilitySuitability(b_fuel,tech,i);
+*    J(b_fuel,tech,i) =l= facilitySuitability(b_fuel,tech,i);
+0=e=0;
+* Restrict facilities in neigbouring area
+equation eq_noNeighbour(b_fuel, tech,i);
 
 
+eq_noNeighbour(b_fuel, tech,i)..
+*0=e=0;
+    sum(ii$ (distance_facility(i,ii)<300), J(b_fuel,tech,ii)) =l= 1;
 * -----------------------------
 * Declare model
 * -----------------------------
 
 Model m_locate /all/;
 
+
+
+* Put some regions as not suitable for facilites, to ease solving
+facilitySuitability(b_fuel,tech,i) $borderAndCityMunicipality(i) = 0;
+J.fx(b_fuel,tech,i) $ (facilitySuitability(b_fuel,tech,i)=0)  =0;
+
+display facilitySuitability, J.lo, J.up, borderAndCityMunicipality;
+
+* fix medium and low facilities to 0, to avoidnthem (not only in constriant)
+J.fx(b_fuel, "medium",i)=0;
+*J.fx(b_fuel, "low",i)=0;
+
 * --- Bounds implied by constraints
+
+
 v_y.up(b_fuel,tech,i)
     = capacity_constraint_up(b_fuel,tech,i);
 v_production_cost.up(b_fuel,tech,i) $ smax(f, conversion_factor(f,b_fuel,i) * (production_cost(f,b_fuel,tech)+investment_cost_var(b_fuel,tech)))

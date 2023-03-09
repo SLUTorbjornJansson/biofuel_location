@@ -100,3 +100,6 @@ $if not exist data\fuel_delivery_2018.gdx $call 'gdxxrw data\fuel_delivery_2018.
 * Hectares of ALA per county, old cropland
 $if not exist data\ALA_municiaplity_O_and_B_2016.gdx $call 'gdxxrw data\ALA_municiaplity_O_and_B_2016.xlsx output=data\ALA_municiaplity_O_and_B_2016.gdx par=ALA_crop rng=A2 ignoreColumns=B,C,D,E,F,G,H,I,J,K,L,M,O,P rDim=1'
 
+* Municipalities that will not be used as facility location
+$if not exist data\border_municipalities.gdx $call 'gdxxrw data\border_municipalities.xlsx output=data\border_municipalities.gdx par=borderAndCityMunicipality ignoreColumns=B rng=a2 rDim=1'
+
