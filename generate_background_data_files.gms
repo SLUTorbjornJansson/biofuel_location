@@ -40,12 +40,29 @@ execute 'gdxxrw.exe results\feedstock_share.gdx o=results\feedstock_share.xls pa
 
 * --- Feedstock cost per region to xlx file
 parameter feedstockCost(g);
+parameter feedstockCostB(*,*);
+parameter feedstockB(*,*);
 
 * Using first price level
-* Using first price level
 feedstockCost(g)= cost_feedstock("grass1",g);
-execute_unload 'results\feedstock_cost.gdx' feedstockCost;
-execute 'gdxxrw.exe results\feedstock_cost.gdx o=results\feedstock_cost.xls par=feedstockCost rdim=1 cdim=0'
+feedstockCostB(f,g)= cost_feedstock(f,g);
+feedstockCostB(f,"SE")= sum(g, cost_feedstock(f,g) * feedstock (f,g)) /
+                                sum(g, feedstock (f,g)) ;
+feedstockB(f,g) = feedstock(f,g);
+feedstockB(f,"SE") = sum(g, feedstock(f,g));
+
+execute_unload 'results\feedstock.gdx' feedstockCost, feedstockCostB, feedstockB;
+execute 'gdxxrw.exe results\feedstock.gdx o=results\feedstock_cost.xls par=feedstockCost rdim=1 cdim=0'
+
+
+* GHG intensity, average
+parameter ghgIntensity(f,*);
+ghgIntensity(f,g) = ghg_factor(f, "feedstock",g) + ghg_factor(f, "LUC",g);
+ghgIntensity(f,"SE") = sum(g, feedstock(f,g)* (ghg_factor(f, "feedstock",g) + ghg_factor(f, "LUC",g))) / sum(g, feedstock (f,g)) ;
+
+execute_unload 'results\emissions_intensity.gdx' ghgIntensity, ghg_factor;
+execute 'gdxxrw.exe results\emissions_intensity.gdx o=results\emissions_intensity.xls par=ghgIntensity '
+
 $ontext
 
 * --- Fuel density
@@ -121,7 +138,10 @@ execute_unload 'results\cheeck' gasElas, elas_fuel;
 *$exit
 execute_unload 'results\elasFuel.gdx' gasElas;
 execute 'gdxxrw.exe results\elasFuel.gdx o=results\elasFuel.xls par=gasElas rdim=1 cdim=0'
+
 $offtext
+
+
 * --- Initial  fuel emissions
 * from TJ to m3, to multiply with emission factor per m3
 parameter p_base_Emis(*, h);

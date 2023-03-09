@@ -66,7 +66,7 @@ tot_cost(b_fuel, tech,i,"feedstock")=v_feedstock_cost.l(b_fuel,tech,i);
 tot_cost(b_fuel, tech,i,"transport") =v_transport_cost.l(b_fuel,tech,i);
 tot_cost(b_fuel, tech,i,"distribution") = v_fueltransport_cost.l(b_fuel,tech,i);
 * above: call distribution
-tot_cost(b_fuel, tech,i,"total")= tot_cost(b_fuel, tech,i,"var_production")+ tot_cost(b_fuel, tech,i,"var_investment") + tot_cost(b_fuel, tech,i,"fixed_investment") +
+tot_cost(b_fuel, tech,i,"total biofuel")= tot_cost(b_fuel, tech,i,"var_production")+ tot_cost(b_fuel, tech,i,"var_investment") + tot_cost(b_fuel, tech,i,"fixed_investment") +
                                       tot_cost(b_fuel, tech,i,"feedstock") +  tot_cost(b_fuel, tech,i,"transport") +  tot_cost(b_fuel, tech,i,"distribution");
 tot_cost(b_fuel, tech, "SE",cost_items)= sum(i, tot_cost(b_fuel, tech,i,cost_items));
 tot_cost(b_fuel, "highLow","SE",cost_items)= sum(tech, tot_cost(b_fuel, tech,"SE",cost_items));

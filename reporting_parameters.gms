@@ -2,7 +2,7 @@
 * specific for reporting
 
 
-set cost_items /"var_production","var_investment","fixed_investment","feedstock","transport","distribution","total","Fuel change","Total fossil"/;
+set cost_items /"var_production","var_investment","fixed_investment","feedstock","transport","distribution","Total biofuel","Fuel change","Total fossil"/;
 
 
 parameter tot_feedstockSE(f) 'Total feedstock available in Sweden, tonne';
