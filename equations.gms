@@ -92,6 +92,8 @@ v_tot_demand(b_fuel, h) =e= sum((tech,i), v_y_sales(b_fuel,tech,i,h));
 
 
 * --- The following only for exogenous demand
+
+* Setting maximum and minimum demand, if other than blend in cap
 eq_demandMax(b_fuel,h)$ (p_distributeBiofuel and not p_useEndoDemand)..
 *  v_tot_demand(b_fuel, h) =l= max_demand(b_fuel,h);
     sum((tech,i), v_y_sales(b_fuel,tech,i,h))
@@ -102,8 +104,16 @@ eq_demandMin(b_fuel,h)$ (p_distributeBiofuel and not p_useEndoDemand)..
         sum((tech,i), v_y_sales(b_fuel,tech,i,h))
 *        + v_art4(b_fuel,h)
         =g= min_demand(b_fuel,h);
+ 
+* fix blend fuel energy volume to current
+
+eq_fixFuelvolume(blend_fuel, h) $ (p_distributeBiofuel and not p_useEndoDemand)..
+f_fuel_0(blend_fuel,h) + v_yEnergy(blend_fuel,h) =e= f_fuel_0(blend_fuel,h);
 
 
+* Retriction on blend - in 
+eq_blendCap(blend_fuel,h )..
+sum(b_fuel $ fuel_blend(blend_fuel,b_fuel), energy_ekv(b_fuel) * v_tot_demand(b_fuel, h)) =l= blend_cap(blend_fuel,h) * (f_fuel_0(blend_fuel,h) +v_yEnergy(blend_fuel,h));
 
 
 * -- The endogenous fuel demand
@@ -112,9 +122,6 @@ eq_demandMin(b_fuel,h)$ (p_distributeBiofuel and not p_useEndoDemand)..
 eq_energyEkv(blend_fuel,h) $ p_useEndoDemand..
 v_yEnergy(blend_fuel,h) =e= sum(fuels $ fuel_blend(blend_fuel,fuels), energy_ekv(fuels)*v_tot_demand(fuels, h)) ;
 
-* Rstriction on blend - in 
-eq_blendCap(blend_fuel,h )$ p_useEndoDemand..
-sum(b_fuel $ fuel_blend(blend_fuel,b_fuel), energy_ekv(b_fuel) * v_tot_demand(b_fuel, h)) =l= blend_cap(blend_fuel,h) * (f_fuel_0(blend_fuel,h) +v_yEnergy(blend_fuel,h));
 
 * fuel consumption equals sum of consumption in all cost segments
 eq_end_uses(blend_fuel,h) $ p_useEndoDemand..
@@ -132,18 +139,18 @@ v_endY.up(end_fuel,h) = min_redY(end_fuel, h);
 
 
 * Equations defining differnt parts of cost (and benefits) of decreasing fuel use         
-eq_redY_fossilCostGainRed(h) ..
-v_redY_fossilCostGainRed(h) =e= sum(end_fuel, sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), p_0(blend_fuel)) * v_endY(end_fuel,h));
+eq_redY_fossilCostGainRed(end_fuel,h) $ p_useEndoDemand ..
+v_redY_fossilCostGainRed(end_fuel, h) =e= sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), p_0(blend_fuel)) * v_endY(end_fuel,h);
 
-eq_redY_fossilCostGainBio(h)..
-v_redY_fossilCostGainBio(h) =e= - sum(b_fuel, sum(blend_fuel $ fuel_blend(blend_fuel,b_fuel), p_0(blend_fuel)) * energy_ekv(b_fuel) * v_tot_demand(b_fuel, h));
+eq_redY_fossilCostGainBio(b_fuel, h)..
+v_redY_fossilCostGainBio(b_fuel, h) =e= - sum(blend_fuel $ fuel_blend(blend_fuel,b_fuel), p_0(blend_fuel)) * energy_ekv(b_fuel) * v_tot_demand(b_fuel, h);
 
-eq_redY_consLoss(h)..
-v_redY_consLoss(h) =e= - sum(end_fuel, md_consumer(end_fuel, h) * v_endY(end_fuel,h));
+eq_redY_consLoss(end_fuel,h) $ p_useEndoDemand..
+v_redY_consLoss(end_fuel, h) =e= -  md_consumer(end_fuel, h) * v_endY(end_fuel,h);
 
 eq_redYCost(h) $ p_useEndoDemand..
 
-v_redY_cost(h) =e= v_redY_fossilCostGainRed(h) + v_redY_fossilCostGainBio(h) + v_redY_consLoss(h);
+v_redY_cost(h) =e= sum(end_fuel, v_redY_fossilCostGainRed(end_fuel, h)) + sum(b_fuel, v_redY_fossilCostGainBio(b_fuel,h)) + sum(end_fuel, v_redY_consLoss(end_fuel, h));
 
 * --- Emissions
 
@@ -225,6 +232,7 @@ eq_tot_cost..
 
 )
 + sum(h, v_redY_cost(h)) $ p_useEndoDemand
++ sum((b_fuel, h), v_redY_fossilCostGainBio(b_fuel,h)) $ (not p_useEndoDemand)
 *+ sum((f,b_fuel,tech,i,g),art_cost*v_art1(f,b_fuel,tech,i,g))+
 *sum((b_fuel, tech, i),art_cost*v_art2(b_fuel,tech,i)+art_cost*v_art3(b_fuel, tech,i)) + sum((b_fuel, tech,i),art_cost*v_art6(b_fuel, tech,i)) + sum((b_fuel,tech,i),art_cost*v_art7(b_fuel,tech,i))
 

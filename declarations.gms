@@ -239,9 +239,9 @@ variable v_yEnergy(blend_fuel,h) 'fuels expressed in energy equivalents';
 
 variable v_endY(end_fuel_Large,h) 'end use fuel, i.e. possibly fossil mixed with biofuel, GJ';
 
-variable v_redY_fossilCostGainRed(h) 'Gain for reducing fossil fuel use, part connected to total reduction in fuel use (as we typically loock at reductions)';
-variable v_redY_fossilCostGainBio(h) 'Gain for reducing fossil fuel use, part connected to biofuel replacement (as we typically loock at reductions)';
-variable v_redY_consLoss(h)  'Consumer losses of reduced fuel use, excluding reduced purchase costs';
+variable v_redY_fossilCostGainRed(end_fuel, h) 'Gain for reducing fossil fuel use, part connected to total reduction in fuel use (as we typically loock at reductions)';
+variable v_redY_fossilCostGainBio(b_fuel, h) 'Gain for reducing fossil fuel use, part connected to biofuel replacement (as we typically loock at reductions)';
+variable v_redY_consLoss(end_fuel, h)  'Consumer losses of reduced fuel use, excluding reduced purchase costs';
 
 variable v_redY_cost(h) 'consumer surplus cost for reducing fuel';
 
@@ -274,6 +274,8 @@ equation eq_capacity_lo(b_fuel,tech,i) 'tech capacity constraint lower';
 equation eq_demandEq(b_fuel,tech,i)"sales of y equals production of y";
 equation eq_demandMax(b_fuel,h) "restrict max demand at point h";
 equation eq_demandMin(b_fuel,h) "restrict min demand at point h";
+equation eq_fixFuelvolume(blend_fuel, h) 'Equation fixing fuel volume for the case when only biofuel replacemnt occurs (exogenous demand)';
+
 equation eq_tot_demand(b_fuel,h) 'Total demand at one location h';
 
 equation eq_facility_suitability(b_fuel,tech,i) 'restrict only suitable places for facility location';
@@ -303,9 +305,9 @@ equation eq_redY_max(end_fuel_Large, h);
 equation eq_redY_min(end_fuel_Large, h);
 
 
-equation eq_redY_fossilCostGainRed(h) 'equation defining v_redY_fossilCostGainRed(h)' ;
-equation eq_redY_fossilCostGainBio(h) 'equation defining v_redY_fossilCostGainBio(h)' ;
-equation eq_redY_consLoss(h) 'equation defining v_redY_consLoss(h)' ;
+equation eq_redY_fossilCostGainRed(end_fuel, h) 'equation defining v_redY_fossilCostGainRed(h)' ;
+equation eq_redY_fossilCostGainBio(b_fuel, h) 'equation defining v_redY_fossilCostGainBio(h)' ;
+equation eq_redY_consLoss(end_fuel, h) 'equation defining v_redY_consLoss(h)' ;
 equation eq_redYCost(h) 'welfare cost for changing fuel consumption';
 
 

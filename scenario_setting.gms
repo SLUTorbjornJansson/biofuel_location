@@ -10,10 +10,10 @@ p_prodTarget(b_fuel) = %level%/100 * max_target(b_fuel);
 
 * ---for exogenous demand, max and min demand in tonnes biofuel
 min_demand(b_fuel, h) = 0;
-min_demand(b_fuel, h) = fuelUse_0_Tm3(h,"gas")* energy_ekv("gas")/energy_ekv("ethanol")   * minDemand_share(b_fuel) ;
+min_demand(b_fuel, h) = f_fuel_0("gasE",h)/energy_ekv("ethanol")   * minDemand_share(b_fuel) ;
 max_demand(b_fuel, h) = 0;
 * --- max demand assumed to be somewhat higher than blend in assumption, but higher than max production target in total
-max_demand(b_fuel, h) = fuelUse_0_Tm3(h,"gas")* energy_ekv("gas")/energy_ekv("ethanol") * maxDemand_share(b_fuel);
+max_demand(b_fuel, h) = sum( blend_fuel $ fuel_blend(blend_fuel,b_fuel), f_fuel_0(blend_fuel,h))/energy_ekv(b_fuel) * maxDemand_share(b_fuel);
 
 
 * Test

@@ -617,9 +617,10 @@ parameter maxDemand_share(b_fuel) 'Share of max_target as max demand. Assumed in
 
 minDemand_share("ethanol") = 0 ;
 maxDemand_share("ethanol") $ sum(h, f_fuel_0("gasE",h))
-    = 1.1 * max_target("ethanol") * energy_ekv("ethanol")
-            / sum(h, f_fuel_0("gasE",h));
-        ;
+ =1;
+*    = 1.1 * max_target("ethanol") * energy_ekv("ethanol")
+*            / sum(h, f_fuel_0("gasE",h));
+*       ;
 
 * -- Share of demand per municipality
 parameter demand_share(b_fuel,h)'Share of demand per municipality';
