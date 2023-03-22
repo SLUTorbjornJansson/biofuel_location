@@ -230,6 +230,9 @@ $GDXIN
 
 
 
+
+
+
 * ---------------------------------
 * Fill parameters with data
 * ---------------------------------
@@ -508,7 +511,7 @@ p_emisTarget= 1500;
 p_prodTarget(b_fuel) = 0;
 
 * Max production target to base production targets on
-max_target("ethanol") = 1700;
+max_target(b_fuel) = sum((f,g), smax(i,conversion_factor(f,b_fuel,i)) * feedstock(f,g));
 
 
 
@@ -631,8 +634,8 @@ demand_share(b_fuel,h) $ (f_fuel_0("gasE",h) + f_fuel_0("dieB",h))
 
 display  demand_share,  fuel_demand, maxDemand_share ;
 * Max and min demand of fuel at each region
-*max_demand(b_fuel,h)=0;
-*min_demand(b_fuel,h)= 0;
+max_demand(b_fuel,h)= max_target(b_fuel);
+min_demand(b_fuel,h)= 0;
 
 * Demand allowed +/- 20% from b_fuel use shares, of the target
 * are set in the scenario_setting.gms file (for each scenario)
