@@ -20,21 +20,21 @@ v_endY.l
 
 
 p_eq_emisTarget= eq_emisTarget.m,
-p_eq_fix = eq_fix.m,
-p_eq_fix_tot_feedstock=eq_fix_tot_feedstock.m,
-p_eq_fix_y=eq_fix_y.m,
-p_eq_fix_tot_demand = eq_fix_tot_demand.m
-p_eq_fix_lo = eq_fix_lo.m,
-p_eq_fix_tot_feedstock_lo=eq_fix_tot_feedstock_lo.m,
-p_eq_fix_y_lo=eq_fix_y_lo.m,
-p_eq_fix_tot_demand_lo = eq_fix_tot_demand_lo.m
+*p_eq_fix = eq_fix.m,
+*p_eq_fix_tot_feedstock=eq_fix_tot_feedstock.m,
+*p_eq_fix_y=eq_fix_y.m,
+*p_eq_fix_tot_demand = eq_fix_tot_demand.m
+*p_eq_fix_lo = eq_fix_lo.m,
+*p_eq_fix_tot_feedstock_lo=eq_fix_tot_feedstock_lo.m,
+*p_eq_fix_y_lo=eq_fix_y_lo.m,
+*p_eq_fix_tot_demand_lo = eq_fix_tot_demand_lo.m
 p_eq_feedstock= eq_feedstock.m
 p_eq_capacity_up =eq_capacity_up.m
 p_eq_capacity_lo =eq_capacity_lo.m
 p_eq_blendCap= eq_blendCap.m
-p_eq_production = eq_production.m
+*p_eq_production = eq_production.m
 cost_feedstock, production_cost, investment_cost_var, investment_cost
-p_eq_redY_max = eq_redY_max.m
+*p_eq_redY_max = eq_redY_max.m
 ;
 *$offtext
 $ontext

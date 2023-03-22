@@ -139,16 +139,19 @@ v_transport_cost v_feedstock_cost J v_production_cost v_tot_cost v_fueltransport
 v_tot_demand v_tot_feedstock
 v_biofuelEmis
 v_biofuelemis_atI v_totEmissions
-v_redY_cost v_endY v_yEnergy v_fossil_emissions
+v_redY_fossilCostGainRed v_redY_fossilCostGainBio v_redY_consLoss v_redY_cost
+v_endY v_yEnergy v_fossil_emissions
 distance tot_feedstockSE feedstock
 feedstock_use_supply feedstock_use_percent_supply feedstock_use_percent cost_share tot_cost
 rep_feedstock rep_feedstockKnName rep_feedstock2
 least_cost highest_cost unit_cost obj_costs
-p_LUC p_ghg
+ghg_factor
 cost_feedstock, production_cost, investment_cost_var, investment_cost
-capacity_constraint_up
+capacity_constaint_up
+p_emistarget
+fix
 p_solveInfo, p_meta
-eq_emisTarget, eq_fix
+eq_emisTarget,
 *eq_fix_feedstock, eq_fix_y_sales,
 *eq_fix_tot_feedstock
 *eq_fix_y,
@@ -158,59 +161,44 @@ eq_emisTarget, eq_fix
 *eq_fix_y_lo,
 *eq_fix_tot_demand_lo
 *eq_fix_yEnergy, eq_fix_yEnergy_lo
-p_emistarget
-eq_production_cost
-eq_feedstock_cost
-eq_transport_cost
-eq_tot_feedstock
-                  
-eq_fueltransport_cost
-eq_production
-                          
-            
-e_J
-eq_prodTarget
-eq_emisTarget           
-                          
-eq_facilityRestrictionTech
-eq_facilityRestrictionFeed
-                          
+
+  
 eq_feedstock
 eq_capacity_up
 eq_capacity_lo
                           
-eq_demandEq
-eq_demandMax
-eq_demandMin
-eq_tot_demand
-                          
-eq_facility_suitability
-                          
-eq_tot_cost
-                          
-                          
-                        
-eq_EFeedstock
-eq_EProduction
-eq_EInvestment
-eq_ETransport
-eq_EDistribution
-eq_ELUC
-eq_EFossilSubs
-eq_fossilEmissions
-eq_biofuelEmissions  
-eq_TotEmissions        
-                          
+*eq_demandEq
+*eq_demandMax
+*eq_demandMin
+*eq_tot_demand
+*                          
+*eq_facility_suitability
+*                          
+*eq_tot_cost
+*                          
+*                          
+*                        
+*eq_EFeedstock
+*eq_EProduction
+*eq_EInvestment
+*eq_ETransport
+*eq_EDistribution
+*eq_ELUC
+*eq_EFossilSubs
+*eq_fossilEmissions
+*eq_biofuelEmissions  
+*eq_TotEmissions        
+*                          
                           
               
-eq_energyEkv
+*eq_energyEkv
 eq_blendCap
                           
 
-eq_redY_max
-eq_redY_min
+*eq_redY_max
+*eq_redY_min
                           
-eq_redYCost
+*eq_redYCost
 
 
 ;
