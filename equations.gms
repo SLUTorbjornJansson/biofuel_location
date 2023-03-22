@@ -5,11 +5,15 @@
 scalar p_useEndoDemand /0/;
 scalar p_distributeBiofuel /0/;
 scalar p_hasStartValues /0/;
+scalar p_useNeighbourFcn /0/;
 
 $ifi %distributeBiofuel%==ON p_distributeBiofuel = 1;
 $ifi %distributeBiofuel%==OFF p_distributeBiofuel = 0;
 $ifi %endoDemand%==ON p_useEndoDemand = 1;
 $ifi %endoDemand%==OFF p_useEndoDemand = 0;
+$ifi %useNeighbourFcn%==ON p_useNeighbourFcn = 1;
+$ifi %useNeighbourFcn%==OFF p_useNeighbourFcn = 0;
+
 
 
 $ontext
@@ -265,13 +269,13 @@ eq_facilityRestrictionFeed(b_fuel, tech, i)..
 
 * If 1, it is suitable, otherwise zero and non-suitable. Possibility to exclude facility sites
 eq_facility_suitability(b_fuel,tech,i)..
-*    J(b_fuel,tech,i) =l= facilitySuitability(b_fuel,tech,i);
-0=e=0;
+    J(b_fuel,tech,i) =l= facilitySuitability(b_fuel,tech,i);
+*0=e=0;
 * Restrict facilities in neigbouring area
 equation eq_noNeighbour(b_fuel, tech,i);
 
 
-eq_noNeighbour(b_fuel, tech,i)..
+eq_noNeighbour(b_fuel, tech,i)$ p_useNeighbourFcn..
 *0=e=0;
     sum(ii$ (distance_facility(i,ii)<300), J(b_fuel,tech,ii)) =l= 1;
 * -----------------------------
