@@ -133,7 +133,7 @@ p_ghg("all", "SE") $ (p_ghg("all","SE")=0)=sum(GHGcat,p_ghg(GHGcat,"SE"));
 p_ghg("allGasoline", "SE")=p_ghg("all", "SE")+p_ghg('gasoline', "SE");
 
 
-execute_unload '%results_out%\results_%data%_Endo%endodemand%_distr%distributeBiofuel%_gap%gap%_target%level%_emistarget%emistarget%%scen%.gdx'
+execute_unload '%results_out%\results_%data%_Endo%endodemand%_distr%distributeBiofuel%_gap%gap%_target%level%_emistarget%emistarget%%scen%_LP.gdx'
 v_feedstock v_y_sales v_y
 v_transport_cost v_feedstock_cost J v_production_cost v_tot_cost v_fueltransport_cost
 v_tot_demand v_tot_feedstock
@@ -147,7 +147,7 @@ rep_feedstock rep_feedstockKnName rep_feedstock2
 least_cost highest_cost unit_cost obj_costs
 ghg_factor
 cost_feedstock, production_cost, investment_cost_var, investment_cost
-capacity_constaint_up
+capacity_constraint_up
 p_emistarget
 fix
 p_solveInfo, p_meta
