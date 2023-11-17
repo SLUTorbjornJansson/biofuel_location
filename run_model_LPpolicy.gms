@@ -3,43 +3,66 @@
 * ---------------------------------------------------------------------------------------------------------------
 
 * --- Inital settings, can be changed for each scenario
+* Scenario name ending
+$setglobal scen _normal
 
-* Specify if Endogenous demand is used (on), or exogenous (OFF)
-$setglobal endoDemand ON
+* Specify if Endogenous demand is used (on), or exogenous (OFF) (a biofuel consumption constraint)
+$setglobal endoDemand OFF
+
 * Specify if biofuel produced is distributed to end user (ON), or not (OFF)
 $setglobal distributeBiofuel ON
 
-* Turn on or off ethanol (p_prodtarget and v_y =0) (use ethanol on =0)
-$setglobal noEth 0
+* Model biofeul production or not (i.e. p_prodtarget and v_y =0, in solve.gms) (use biofuel on =0)
+$setglobal noBio 0
 
+* Set production target level
 $setglobal level 70
+
+*Set emission target level
 $setglobal emistarget 70
-$setglobal fixedlocations
 
-$setglobal scen _normal
-
-
-$setglobal gap 005
+* max relative optimality gap for MIP model solution (seem to override opt file)
+$setglobal gap 05
 * reslim deafult 300, for 300 minutes (* 60)
-$setglobal reslim 1440
+$setglobal reslim 2000
+
+* Use start values for MIP problem (1) or not (0)
 $setglobal mipstart 1
-* threads deafult =1;
-$setglobal threads 30
-* to use 1 startvalue: 1
+* to use 1 as startvalue for all variables: 1
 $setglobal start_value1 1
-*To use holdfixed variables file: 1
-$setglobal holdfixed_var 0
 
-$setglobal distConstr 0
+* OPtimization working on  number of threads (deafult =1);
+$setglobal threads 6
 
+* Use gams option file (1/0) (osicplex.opt: CPXPARAM_Advance, CPXPARAM_Threads, CPXPARAM_MIP_Display, CPXPARAM_Emphasis_MIP, PXPARAM_MIP_Pool_Capacity, CPXPARAM_MIP_Tolerances_AbsMIPGap                0 
 $setglobal optfile 1
 
-$setglobal startValueFile results\PII\results_data_rev_noDemand_gap005_target00_ND_Ctarget_gas50percent
+*To use holdfixed variables file, i.e. Defining variables that should be holdfixed to zero, i.e no possible values for these as excluded from model: 1
+$setglobal holdfixed_var 0
+
+* impose constrint on maximum distance between feedstock and facility (yes=1, no=0)
+$setglobal distConstr 0
+
+* Restrict facilities per region 
+$setglobal maxfacilityReg 1
 
 
-* --- can NOT  be set by scenario
+* .. and facilities in the country
+$setglobal facility_max 10
+
+* Specify if use the equation that facilites canot be to close are used
+$setglobal useNeighbourFcn OFF
+
+
+
+* Sert default startvalue file for MIPstart
+$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget40_25jan.gdx
+
+
+* --- Settings that can NOT  be set by scenario, as they are defined before equations
 $setglobal data data_rev
-* Use limited part of fuel cost segments (ON/OFsmallFuelSetF)(ON default)
+
+* Use limited part of fuel cost segments (ON/OFF)(ON default)
 $setglobal smallFuelSet ON
 
 $setglobal policy OFF
@@ -56,7 +79,13 @@ set notusedF(f) 'feedstock that is not used in simulation' /wheat/;
 
 * Use all fuel segments if OFF. Neeeded to compute costs in data
 $if %smallFuelSet% == OFF end_fuel(end_fuel_Large) =yes;
-
+* Set not uset set elements away - save memory?
+f_eq(f) =NO;
+f_eq("grass1")=yes;
+f_eq("grass2")=yes;
+f_eq("grass3")=yes;
+*
+tech_eq("medium") =NO;
 * --------------------------------
 * Add data
 * ---------------------------------
@@ -90,21 +119,21 @@ $offtext
 
 * -------------------------------------------------
 $include 'LP/equations_policy.gms'
-equation eq_fix(b_fuel,tech,i);
+equation eq_fix(b_fuel,tech_eq,i);
 *equation eq_fix_y(b_fuel,tech,i);
 *equation eq_fix_feedstock(f,b_fuel,tech,i,g);
 *equation eq_fix_y_sales(b_fuel,tech,i,h);
 *equation eq_fix_gas(f_fuel, h);
-parameter fix(b_fuel,tech,i);
-parameter fix_y(b_fuel,tech,i);
-parameter fix_feedstock(f,b_fuel,tech,i,g);
-parameter fix_y_sales(b_fuel,tech,i,h);
+parameter fix(b_fuel,tech_eq,i);
+parameter fix_y(b_fuel,tech_eq,i);
+parameter fix_feedstock(f_eq,b_fuel,tech_eq,i,g);
+parameter fix_y_sales(b_fuel,tech_eq,i,h);
 parameter fix_tot_demand(f_fuel,h);
 
 
-fix(b_fuel,tech,i)=0;
-eq_fix(b_fuel,tech,i)..
-J(b_fuel,tech,i) =e= 1$fix(b_fuel,tech,i)+0;
+fix(b_fuel,tech_eq,i)=0;
+eq_fix(b_fuel,tech_eq,i)..
+J(b_fuel,tech_eq,i) =e= 1$fix(b_fuel,tech_eq,i)+0;
 $ontext
 fix_y(b_fuel,tech,i)=0;
 eq_fix_y(b_fuel,tech,i)..
@@ -210,7 +239,27 @@ Parameter p_y_sales(b_fuel,tech,i,h);
 Parameter p_y(b_fuel,tech,i);
 parameter p_tot_demand(fuels, h);
 
-$include scen/scen_Emistarget_10_to_100_LP.gms
+* ---------------------------------------
+* --- Run scenarios
+* ------------------------------------------------------------------------------
+*$include scen\scen_Emistarget_20_25percentile_exper.gms
+
+*$include scen\scen_Emistarget_noEth_10_to_100.gms
+*$include scen\scen_Emistarget_10_25percentile_exper.gms
+*$include scen\scen_prodtarget_10_to_100.gms
+
+
+*$include scen\scen_prodEmistarget_10_to_100.gms
+*$include scen\scen_Emistarget_10_to_100_noALA.gms
+*$include scen\scen_Emistarget_10_to_100_crpPastALA.gms
+*$include scen\scen_Emistarget_10_to_100_crpALALUCdiff_nov.gms
+*$include scen\scen_Emistarget_10_to_100_crpALAhigh_nov.gms
+*$include scen\scen_Emistarget_10_to_100_crpPastALAhigh_nov.gms
+
+*$include scen\scen_prodtarget_basedEmis10_to_100_crpPastALA.gms
+
+
+$include scen\%scenariofile%.gms
 
 
 

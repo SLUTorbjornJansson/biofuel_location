@@ -40,8 +40,9 @@ display nuts2;
 set i(knkod) 'facility locations' /set.knkod/;
 set g(knkod) 'feedstock locations'/set.knkod/;
 set h(knkod) 'demand locations' /set.knkod/;
-set tech 'technology, type and size' /low, medium,high/;
+set tech 'technology, type and size - base set' /low, medium,high/;
 *set capacity 'capacity levels' /low, medium, high/;
+set tech_eq(tech) 'technology, type and size - adjustable set for equations' /set.tech/;
 
 set fuels /ethanol, methanol, gas, die/;
 *set fuels(fuels2) /ethanol, methanol, gas/;
@@ -58,7 +59,8 @@ set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 *set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 
 
-set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
+set f 'feedstock types, base set' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
+set f_eq(f) 'feedstock types, adjustable in equations' /set.f/;
 set grass(f) 'feedstock from ley land' /grass1,grass2,grass3/;
 set ab(f) 'subset of abandonned land' /ab1, ab2, ab3/;
 set abP(f) 'subset of ALA on old pasture . Can have different properties' /abP1, abP2, abP3 /;
@@ -114,7 +116,7 @@ set end_fuel_map(end_fuel_Large, blend_fuel)
          dieB_4b.dieB
          dieB_5b.dieB
          /;
-
+$if %smallFuelSet% == OFF end_fuel(end_fuel_Large) =yes;
 $ontext
 set end_fuel 'end use fuels, i.e. blended in fuels, differnt cost level based on demand elasicitites'
 /gasE_m1,gasE_1, gase_2, gasE_3, dieB_m1, dieB_1, dieB_2, dieB_3,
@@ -204,7 +206,7 @@ parameter fuelUse_0_Tm3(h,fuels) 'initial fossil fuel use in thousand m3';
 parameter p_0(blend_fuel) 'initial price for fossil fuels';
 parameter md_consumer(end_fuel_Large, h) 'marginal demand consumer, per end use fuel, piecewise linear';
 
-
+parameter biotax(b_fuel) 'Tax on biofuel';
 * modelling constriants for easiness
 parameter p_facility_max(tech);
 scalar distance_max;
@@ -244,11 +246,12 @@ variable v_yEnergy(blend_fuel,h) 'fuels expressed in energy equivalents';
 
 variable v_endY(end_fuel_Large,h) 'end use fuel, i.e. possibly fossil mixed with biofuel, GJ';
 
-variable v_redY_fossilCostGainRed(h) 'Gain for reducing fossil fuel use, part connected to total reduction in fuel use (as we typically loock at reductions)';
-variable v_redY_fossilCostGainBio(h) 'Gain for reducing fossil fuel use, part connected to biofuel replacement (as we typically loock at reductions)';
-variable v_redY_consLoss(h)  'Consumer losses of reduced fuel use, excluding reduced purchase costs';
+variable v_redY_fossilCostGainRed(end_fuel, h) 'Gain for reducing fossil fuel use, part connected to total reduction in fuel use (as we typically loock at reductions)';
+variable v_redY_fossilCostGainBio(b_fuel, h) 'Gain for reducing fossil fuel use, part connected to biofuel replacement (as we typically loock at reductions)';
+variable v_redY_consLoss(end_fuel, h)  'Consumer losses of reduced fuel use, excluding reduced purchase costs';
 
 variable v_redY_cost(h) 'consumer surplus cost for reducing fuel';
+
 
 
 
@@ -272,6 +275,7 @@ equation eq_emisTarget;
 
 equation eq_facilityRestrictionTech(b_fuel,i) 'Restricting number of differnt facility technology at same place';
 equation eq_facilityRestrictionFeed(b_fuel,tech, i) 'Restricting number of differnt feedstock per facility';
+equation eq_noNeighbour(b_fuel, tech,i) 'equation to reduce time for solve - restrict facilities not to be too close to each other';
 
 equation eq_feedstock(f,g) "max feedstock uptake from supply region g";
 equation eq_capacity_up(b_fuel,tech,i) 'tech capacity constraint upper';
@@ -280,6 +284,8 @@ equation eq_capacity_lo(b_fuel,tech,i) 'tech capacity constraint lower';
 equation eq_demandEq(b_fuel,tech,i)"sales of y equals production of y";
 equation eq_demandMax(b_fuel,h) "restrict max demand at point h";
 equation eq_demandMin(b_fuel,h) "restrict min demand at point h";
+equation eq_fixFuelvolume(blend_fuel, h) 'Equation fixing fuel volume for the case when only biofuel replacemnt occurs (exogenous demand)';
+
 equation eq_tot_demand(b_fuel,h) 'Total demand at one location h';
 
 equation eq_facility_suitability(b_fuel,tech,i) 'restrict only suitable places for facility location';
@@ -294,7 +300,8 @@ equation eq_EInvestment(b_fuel,tech,i);
 equation eq_ETransport(f,b_fuel,tech,i,g);
 equation eq_EDistribution(b_fuel,tech,i,h);
 equation eq_ELUC(f,b_fuel,tech,i,g);
-equation eq_EFossilSubs(b_fuel,tech,i,h);
+equation eq_EGasolineSubs(b_fuel,tech,i,h);
+equation eq_EDieselSubs(b_fuel,tech,i,h);
 equation eq_fossilEmissions(f_fuel,h);
 equation eq_biofuelEmissions(i);
 equation eq_TotEmissions;
@@ -308,9 +315,9 @@ equation eq_end_uses(blend_fuel,h) 'each end fuel can be of one of several fuel 
 equation eq_redY_max(end_fuel_Large, h);
 equation eq_redY_min(end_fuel_Large, h);
 
-equation eq_redY_fossilCostGainRed(h) 'equation defining v_redY_fossilCostGainRed(h)' ;
-equation eq_redY_fossilCostGainBio(h) 'equation defining v_redY_fossilCostGainBio(h)' ;
-equation eq_redY_consLoss(h) 'equation defining v_redY_consLoss(h)' ;
+equation eq_redY_fossilCostGainRed(end_fuel, h) 'equation defining v_redY_fossilCostGainRed(h)' ;
+equation eq_redY_fossilCostGainBio(b_fuel, h) 'equation defining v_redY_fossilCostGainBio(h)' ;
+equation eq_redY_consLoss(end_fuel, h) 'equation defining v_redY_consLoss(h)' ;
 equation eq_redYCost(h) 'welfare cost for changing fuel consumption';
 
 

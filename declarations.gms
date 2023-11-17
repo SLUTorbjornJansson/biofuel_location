@@ -40,8 +40,9 @@ display nuts2;
 set i(knkod) 'facility locations' /set.knkod/;
 set g(knkod) 'feedstock locations'/set.knkod/;
 set h(knkod) 'demand locations' /set.knkod/;
-set tech 'technology, type and size' /low, medium,high/;
+set tech 'technology, type and size - base set' /low, medium,high/;
 *set capacity 'capacity levels' /low, medium, high/;
+set tech_eq(tech) 'technology, type and size - adjustable set for equations' /set.tech/;
 
 set fuels 'all fuel types' /ethanol, methanol, gas, die/ ;
 
@@ -53,7 +54,9 @@ set b_fuel(fuels) 'biofuels' /ethanol/;
 set blend_fuel 'Fuels blended to fossils' /gasE, dieB/;
 
 
-set f 'feedstock types' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
+set f 'feedstock types, base set' /wheat, grass1, grass2, grass3,ab1, ab2, ab3, abP1, abP2, abP3/;
+set f_eq(f) 'feedstock types, adjustable in equations' /set.f/;
+
 set grass(f) 'feedstock from ley land' /grass1,grass2,grass3/;
 set ab(f) 'subset of abandonned land' /ab1, ab2, ab3/;
 set abP(f) 'subset of ALA on old pasture . Can have different properties' /abP1, abP2, abP3 /;
@@ -199,6 +202,8 @@ parameter fuelUse_0_Tm3(h,fuels) 'initial fossil fuel use in thousand m3';
 parameter p_0(blend_fuel) 'initial price for fossil fuels';
 parameter md_consumer(end_fuel_Large, h) 'marginal demand consumer, per end use fuel, piecewise linear';
 
+parameter biotax(b_fuel) 'Tax on biofuel';
+
 
 * modelling constriants for easiness
 parameter p_facility_max(tech);
@@ -266,6 +271,7 @@ equation eq_emisTarget;
 
 equation eq_facilityRestrictionTech(b_fuel,i) 'Restricting number of differnt facility technology at same place';
 equation eq_facilityRestrictionFeed(b_fuel,tech, i) 'Restricting number of differnt feedstock per facility';
+equation eq_noNeighbour(b_fuel, tech,i) 'equation to reduce time for solve - restrict facilities not to be too close to each other';
 
 equation eq_feedstock(f,g) "max feedstock uptake from supply region g";
 equation eq_capacity_up(b_fuel,tech,i) 'tech capacity constraint upper';
@@ -290,20 +296,20 @@ equation eq_EInvestment(b_fuel,tech,i);
 equation eq_ETransport(f,b_fuel,tech,i,g);
 equation eq_EDistribution(b_fuel,tech,i,h);
 equation eq_ELUC(f,b_fuel,tech,i,g);
-equation eq_EFossilSubs(b_fuel,tech,i,h);
+equation eq_EGasolineSubs(b_fuel,tech,i,h);
+equation eq_EDieselSubs(b_fuel,tech,i,h);
 equation eq_fossilEmissions(f_fuel,h);
 equation eq_biofuelEmissions(i);
 equation eq_TotEmissions;
 
 
-* paper fuel consumption equations
+*  fuel consumption equations
 equation eq_energyEkv(blend_fuel,h) 'tranforming fuels to energy content';
 equation eq_blendCap(blend_fuel,h) 'quantity energy biofuel should be less than a cap of the total blended fuel';
 
 equation eq_end_uses(blend_fuel,h) 'each end fuel can be of one of several fuel segments with differnt consumer surplus cost';
 equation eq_redY_max(end_fuel_Large, h);
 equation eq_redY_min(end_fuel_Large, h);
-
 
 equation eq_redY_fossilCostGainRed(end_fuel, h) 'equation defining v_redY_fossilCostGainRed(h)' ;
 equation eq_redY_fossilCostGainBio(b_fuel, h) 'equation defining v_redY_fossilCostGainBio(h)' ;
