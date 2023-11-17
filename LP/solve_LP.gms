@@ -1,5 +1,7 @@
 * --- Solve model --
 *-------------------
+Model m_locateLP /all/;
+
 *lim col=0
 *limrow =0
 m_locateLP.solprint=1;
@@ -10,10 +12,20 @@ Option LP = osicplex;
 * OSICPLEX, CBC or SOPLEX
 m_locateLP.reslim = 30*60;
 
+* define option fiel
+m_locate.OptFile =%optfile%;
+
+
 * set start time to calculate elapsed time
 starttime = jnow;
 
 * --- Solve settings
+
+* Turn off or on biofuel to only allow consumption changes
+p_noBio =0;
+$ifi %noBio%==1 p_noBio= 1;
+v_y.fx(b_fuel,tech,i)$ p_noBio = 0;
+p_prodtarget(b_fuel) $ p_noBio =0;
 
 * --- Fix variables with known outcome to avoid varibales in equations
 
@@ -35,18 +47,18 @@ display  v_feedstock.l, v_feedstock.up;
 
 m_locateLP.savepoint = 1;
 m_locateLP.Reslim    =  %reslim% * 60;
-*m_locateLP.optcr= 0.%gap%;
+m_locateLP.optcr= 0.%gap%;
 
 Option BRatio = 1.0;
 
 m_locateLP.threads=%threads%;
 
 
-%fixedlocations%
+*%fixedlocations%
 
 * indicate using MIP start values or not
 *m_locateLP.integer4 = %mipstart%;
-
+$ontext
 * startvalues set to 1, to have starting vaules
 if ( %start_value1% = 1,
 $include start_value_1.gms
@@ -77,6 +89,9 @@ v_endY
 v_redY_cost
 
 ;
+$offtext
+
+execute_unload 'debug_LP.gdx';
 display J.l;
 if(execError gt 0,
     display "Tried to load restart values, but got an error.";
