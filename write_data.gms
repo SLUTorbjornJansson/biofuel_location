@@ -57,6 +57,9 @@ $if not exist data\municipality_areas_landShare.gdx $call 'gdxxrw data\municipal
 *execute 'gdxxrw data\alternative_costs.xlsx o=data\alternative_costs.gdx par=price_feedstock_prodOmr rng=A4 rDim=2 '
 $if not exist data\alternative_costs.gdx $call 'gdxxrw data\alternative_costs.xlsx output=data\alternative_costs.gdx par=cost_feedstock_prodOmr rng=A4 rDim=2  '
 
+*2024 remade version of Alternative cost for silage production
+$if not exist data\alternative_costs_AgriwiseVersion.gdx $call 'gdxxrw data\alternative_costs_AgriwiseVersion.xlsx output=data\alternative_costs_AgriwiseVersion.gdx par=cost_feedstock_prodOmr_Ag_ha rng=A4 rDim=2  '
+
 
 * Elasticities for fodder,
 *execute 'gdxxrw data\alternative_costs.xlsx o=data\alternative_costs.gdx par=price_feedstock_prodOmr rng=A4 rDim=2 '

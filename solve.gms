@@ -51,15 +51,13 @@ J.prior( b_fuel,"low",i)   = 2;
 J.prior(b_fuel,"medium",i)  = 3;
 
 
-
-
 m_locate.savepoint = 1;
 m_locate.Reslim    =  %reslim% * 60;
 
 * defines optimlity gap
 m_locate.optcr= 0.%gap%;
 
-Option BRatio = 1.0;
+*Option BRatio = 1.0;
 * Define use of threads
 m_locate.threads=%threads%;
 
@@ -98,7 +96,7 @@ v_endY
 v_redY_cost
 
 ;
-
+execute_unload 'debug_MIP.gdx';
 if(execError gt 0,
     display "Tried to load restart values, but got an error.";
    execError = 0;

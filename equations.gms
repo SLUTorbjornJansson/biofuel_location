@@ -231,15 +231,17 @@ eq_emisTarget..
 * --- Objective function: minimize total costs
 
 eq_tot_cost..
-    v_tot_cost =e=
+v_tot_cost =e=
    sum((b_fuel,tech_eq,i), v_production_cost(b_fuel,tech_eq,i)+ v_feedstock_cost(b_fuel,tech_eq,i)
     + v_transport_cost(b_fuel,tech_eq,i)
     
 * When demand  active - transport costs in objective
 
-+ v_fueltransport_cost(b_fuel,tech_eq,i) $ p_distributeBiofuel
+    + v_fueltransport_cost(b_fuel,tech_eq,i) $ p_distributeBiofuel
 
-)
+    )
+    * (1 + p_VAT)
+*
 + sum(h, v_redY_cost(h)) $ p_useEndoDemand
 + sum((b_fuel, h), v_redY_fossilCostGainBio(b_fuel,h)) $ (not p_useEndoDemand)
 *+ sum((f_eq,b_fuel,tech_eq,i,g),art_cost*v_art1(f_eq,b_fuel,tech_eq,i,g))+

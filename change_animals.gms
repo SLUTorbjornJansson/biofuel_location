@@ -4,7 +4,7 @@
 
 * ---- Including data from model ----
 *$setglobal demandMode Demand
-$setglobal level 70
+$setglobal level 70     
 $setglobal fixedlocations
 *J.fx(fuel,"medium","1498")=1;
 $setglobal scen data_rev_EndoON_distrON_gap005_target00_emistarget100_7feb
