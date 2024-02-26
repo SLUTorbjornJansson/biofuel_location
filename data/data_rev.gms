@@ -153,6 +153,13 @@ parameter cost_feedstock_prodOmr(prodOmr,f);
 $load cost_feedstock_prodOmr
 $GDXIN
 
+* NEw 2024 Alternative costs in sek per tonne
+$gdxin 'data\alternative_costs_AgriwiseVersion.gdx'
+$load
+parameter cost_feedstock_prodOmr_Ag_ha(prodOmr,f);
+$load cost_feedstock_prodOmr_Ag_ha
+$GDXIN
+
 * Fodder ownprice elasticities
 parameter data_elas_fodder(lan);
 $gdxin 'data\elasticities.gdx'
@@ -389,6 +396,26 @@ cost_feedstock("grass2",g) = sum(prodOmr $ prodOmr_to_kn(g,prodOmr), cost_feedst
                                          (1+area_factor('grass1',g)/ (sum(lan$lan_to_kn(lan,g),elas_fodder("grass1",lan))));
 cost_feedstock("grass3",g) =  cost_feedstock("grass2",g)*
                                          (1+area_factor('grass2',g)/ (sum(lan$lan_to_kn(lan,g),elas_fodder("grass2",lan))));
+                                         
+* Covert per hectare based costs for teh "new" values based on agriwise's alternative costs
+* Turn feedstock cost into million euro per t tonne, per region g
+* Therefore, the production cost p_(f,g) for reed canary grass is assumed to equal the opportunity cost for silage production,
+* on agricultural production region level, from the Agriwise business-calculation database (Agriwise, 2019). 
+cost_feedstock_prodOmr_Ag_ha(prodOmr,f) = cost_feedstock_prodOmr_Ag_ha(prodOmr,f) * Eur_to_M_Eur / tonne_to_Ttonne * Euro_SEK2019;
+
+parameter cost_feedstock_Ag_ha(f,g);
+parameter cost_feedstock_Ag(f,g);
+* per region g
+cost_feedstock_Ag_ha(f,g) = sum(prodOmr $ prodOmr_to_kn(g,prodOmr), cost_feedstock_prodOmr_Ag_ha(prodOmr,f));
+
+* cost per tonne feedstock, based on regioal yield
+cost_feedstock_Ag("grass1",g) $ yield(g,"grass1") = cost_feedstock_Ag_ha("grass1",g) / (yield(g,"grass1") * 1000);
+
+* Calculate costs for other cost categories based on elasticites
+cost_feedstock_Ag("grass2",g) = cost_feedstock_Ag("grass1",g) *
+                                         (1+area_factor('grass1',g)/ (sum(lan$lan_to_kn(lan,g),elas_fodder("grass1",lan))));
+cost_feedstock_Ag("grass3",g) =  cost_feedstock_Ag("grass2",g)*
+                                         (1+area_factor('grass2',g)/ (sum(lan$lan_to_kn(lan,g),elas_fodder("grass2",lan))));
 
 
 * --- Cost of using abandonned land
@@ -511,7 +538,7 @@ p_emisTarget= 1500;
 p_prodTarget(b_fuel) = 0;
 
 * Max production target to base production targets on
-max_target(b_fuel) = sum((f,g), smax(i,conversion_factor(f,b_fuel,i)) * feedstock(f,g));
+max_target(b_fuel) = sum((grass,g), smax(i,conversion_factor(grass,b_fuel,i)) * feedstock(grass,g));
 
 
 
@@ -556,7 +583,7 @@ ghg_factor(f,GHGcat,g) = ghg_factor(f,GHGcat,g) / tonne_to_Ttonne * kg_to_Ttonne
 ghg_factor("all",GHGcat,"all") = ghg_factor("all",GHGcat,"all")/ tonne_to_Ttonne * kg_to_Ttonne;
 
 
-* ------------ Demand modelling-----------
+* ------------ End fuel demand modelling-----------
 
 
 * Energy equivalents for fuels
@@ -697,7 +724,8 @@ fuel_segment("dieB_5b")  = -0.9;
 * Marginal demand decreasing with quantity
 alias (end_fuel, end_fuel2);
 md_consumer(end_fuel, h)$ sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), f_fuel_0 (blend_fuel,h))=
-* cost based on end of segment
+* first, change in price
+*cost based on end of segment
 - (fuel_segment(end_fuel)
 *, this was an average    + 0.1 - 0.2$(sameas(end_fuel,"gasE_m1") or sameas(end_fuel,"dieB_m1"))
 * take the average of the segment, based on the length of each segment
@@ -708,6 +736,7 @@ md_consumer(end_fuel, h)$ sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), f
                                 )
                               * sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel),
                                         p_0(blend_fuel) * f_fuel_0(blend_fuel,h) / (elas_fuel(h, blend_fuel) * f_fuel_0 (blend_fuel,h)))
+* add surplus from old price                                        
                             + sum(blend_fuel $ end_fuel_map(end_fuel, blend_fuel), p_0(blend_fuel)) ;
 
 * --- Restriction on quantities per each cost level

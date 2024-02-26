@@ -207,6 +207,8 @@ parameter p_0(blend_fuel) 'initial price for fossil fuels';
 parameter md_consumer(end_fuel_Large, h) 'marginal demand consumer, per end use fuel, piecewise linear';
 
 parameter biotax(b_fuel) 'Tax on biofuel';
+parameter p_VAT 'VAT tax rate on biofuel';
+
 * modelling constriants for easiness
 parameter p_facility_max(tech);
 scalar distance_max;
