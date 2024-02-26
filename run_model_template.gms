@@ -90,9 +90,9 @@ f_eq(f) =NO;
 f_eq("grass1")=yes;
 f_eq("grass2")=yes;
 f_eq("grass3")=yes;
-f_eq("ab1")=yes;
-f_eq("ab2")=yes;
-f_eq("ab3")=yes;
+f_eq("ab1")=no;
+f_eq("ab2")=no;
+f_eq("ab3")=no;
 *
 tech_eq("medium") =NO;
 
