@@ -16,7 +16,7 @@ starttime = jnow;
 * Turn off or on biofuel to only allow consumption changes
 p_noBio =0;
 $ifi %noBio%==1 p_noBio= 1;
-v_y.fx(b_fuel,tech,i)$ p_noBio = 0;
+v_y.fx(b_fuel,i)$ p_noBio = 0;
 p_prodtarget(b_fuel) $ p_noBio =0;
 
 
@@ -31,7 +31,7 @@ m_locate.holdfixed = 1;
 
 * Constrain if distance between demand and supply regions can be longer than a certain distance
 $ifi %distConstr%==1 p_distConstraint = 1;
-v_feedstock.fx(f,b_fuel,tech,i,g) $ ((distance(i,g) > 1000) and p_distConstraint)= 0 ;
+v_feedstock.fx(b_fuel,i,g) $ ((distance(i,g) > 1000) and p_distConstraint)= 0 ;
 display  v_feedstock.l, v_feedstock.up;
 
 * Dfine max facilities per region, and in total 
@@ -84,7 +84,7 @@ v_tot_demand
 v_tot_feedstock
 
 v_biofuelEmis
-v_biofuelEmis_atI
+v_biofuelEmis_tot
 v_fossil_emissions
 v_totEmissions
 

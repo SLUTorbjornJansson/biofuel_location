@@ -455,11 +455,11 @@ cost_feedstock(abP,g)= prod_costAb(g,abP) + conversion_cost(g,abP);
 * --- Production costs, per t tonne of feedstock
 * Lin et al. (2013), Lin, T., Rodríguez, L. F., Shastri, Y. N., Hansen, A.C. and Ting, KC. (2013). GIS‐enabled biomass‐ethanol
 * supply chain optimization: model development and Miscanthus application. Biofuels, Bioproducts and Biorefining 7:314-333.
-parameter production_costUSD(f,b_fuel, tech) 'production cost in USD 2007 per t tonne feedstock';
+parameter production_costUSD(b_fuel, tech) 'production cost in USD 2007 per t tonne feedstock';
 
-production_costUSD(f,b_fuel, tech) = 0.058;
-production_cost(f,b_fuel, "low")    = production_costUSD(f,b_fuel, "low") * inflUSDExrate2007 * Euro_SEK2019;
-production_cost(f,b_fuel, "high") = production_costUSD(f,b_fuel, "high") * inflUSDExrate2007 * Euro_SEK2019;
+production_costUSD(b_fuel, tech) = 0.058;
+production_cost(b_fuel, "low")    = production_costUSD(b_fuel, "low") * inflUSDExrate2007 * Euro_SEK2019;
+production_cost(b_fuel, "high") = production_costUSD(b_fuel, "high") * inflUSDExrate2007 * Euro_SEK2019;
 
 
 
@@ -488,16 +488,16 @@ investment_cost(b_fuel,"high") = investment_costUSD(b_fuel,"high") * inflUSDExra
 * Transport costs
 * De Jong, S., Hoefnagels, R., Wetterlund, E., Pettersson, K., Faaij, A. and Junginger, M. (2017). Cost optimization of biofuel
 *production–The impact of scale, integons. Applied Energy 195:1055-1070.
-parameter transport_costEUR(f,i) 'M Eur per t tonne and km'; 
+parameter transport_costEUR(i) 'M Eur per t tonne and km'; 
 parameter transport_cost_fixedEUR 'M EURO per t tonne'; 
 parameter fuel_transportcostEUR(b_fuel,i) 'M Eur per t m3 and km';
 parameter fuel_transport_cost_fixedEUR M EURO per t m3;
-transport_costEUR(f,i) =   0.000162;
+transport_costEUR(i) =   0.000162;
 transport_cost_fixedEUR =  0.00511;
 fuel_transportcostEUR(b_fuel,i)=    0.000162;
 fuel_transport_cost_fixedEUR =  0.00131;
 
-transport_cost(f,i) =   transport_costEUR(f,i)* inflEURExrate2015 *Euro_SEK2019;
+transport_cost(i) =   transport_costEUR(i)* inflEURExrate2015 *Euro_SEK2019;
 transport_cost_fixed =  transport_cost_fixedEUR * inflEURExrate2015 * Euro_SEK2019;
 fuel_transportcost(b_fuel,i)=    fuel_transportcostEUR(b_fuel,i) * inflEURExrate2015 * Euro_SEK2019;
 fuel_transport_cost_fixed =  fuel_transport_cost_fixedEUR * inflEURExrate2015 * Euro_SEK2019;
@@ -507,17 +507,17 @@ fuel_transport_cost_fixed =  fuel_transport_cost_fixedEUR * inflEURExrate2015 * 
 * Converion of feedstock to biofuel, T m3  biofeul per t tonne feedstock
 * Lin et al. (2013), Lin, T., Rodríguez, L. F., Shastri, Y. N., Hansen, A.C. and Ting, KC. (2013). GIS‐enabled biomass‐ethanol
 * supply chain optimization: model development and Miscanthus application. Biofuels, Bioproducts and Biorefining 7:314-333.
-conversion_factor(f,b_fuel,i)=0.3;
+conversion_factor(b_fuel)=0.3;
 
 * Capacity constraints, multiplied with conversion_factor to get 1000 m^3 biofuel
 * Lin et al. (2013), Lin, T., Rodríguez, L. F., Shastri, Y. N., Hansen, A.C. and Ting, KC. (2013). GIS‐enabled biomass‐ethanol
 * supply chain optimization: model development and Miscanthus application. Biofuels, Bioproducts and Biorefining 7:314-333.
 capacity_constraint_lo("ethanol","medium",i) = 0;
 capacity_constraint_up("ethanol","medium",i) = 0;
-capacity_constraint_lo("ethanol","low",i) = 50 * conversion_factor("grass1","ethanol",i);
-capacity_constraint_up("ethanol","low",i) = 600 * conversion_factor("grass1","ethanol",i);
-capacity_constraint_lo("ethanol","high",i) = 600 * conversion_factor("grass1","ethanol",i);
-capacity_constraint_up("ethanol","high",i) = 1200 * conversion_factor("grass1","ethanol",i);
+capacity_constraint_lo("ethanol","low",i) = 50 * conversion_factor("ethanol");
+capacity_constraint_up("ethanol","low",i) = 600 * conversion_factor("ethanol");
+capacity_constraint_lo("ethanol","high",i) = 600 * conversion_factor("ethanol");
+capacity_constraint_up("ethanol","high",i) = 1200 * conversion_factor("ethanol");
 
 
 
@@ -538,7 +538,7 @@ p_emisTarget= 1500;
 p_prodTarget(b_fuel) = 0;
 
 * Max production target to base production targets on
-max_target(b_fuel) = sum((grass,g), smax(i,conversion_factor(grass,b_fuel,i)) * feedstock(grass,g));
+max_target(b_fuel) = sum((grass,g), smax(i, conversion_factor(b_fuel)) * feedstock(grass,g));
 
 
 

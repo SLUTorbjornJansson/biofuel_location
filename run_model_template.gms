@@ -26,7 +26,7 @@ $setglobal emistarget 70
 
 
 * max relative optimality gap for MIP model solution (seem to override opt file)
-$setglobal gap 005
+$setglobal gap 001
 * reslim deafult 300, for 300 minutes (* 60)
 $setglobal reslim 2000
 
@@ -36,7 +36,7 @@ $setglobal mipstart 1
 $setglobal start_value1 1
 
 * OPtimization working on  number of threads (deafult =1);
-$setglobal threads 6
+$setglobal threads 16
 
 * Use gams option file (1/0) (osicplex.opt: CPXPARAM_Advance, CPXPARAM_Threads, CPXPARAM_MIP_Display, CPXPARAM_Emphasis_MIP, PXPARAM_MIP_Pool_Capacity, CPXPARAM_MIP_Tolerances_AbsMIPGap                0 
 $setglobal optfile 1
@@ -60,7 +60,7 @@ $setglobal useNeighbourFcn OFF
 
 
 * Sert default startvalue file for MIPstart
-$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget40_25jan.gdx
+$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget40_crpALAhigh_7dec.gdx
 
 
 * --- Settings that can NOT  be set by scenario, as they are defined before equations
@@ -166,11 +166,11 @@ deafult_emisTarget = p_emisTarget;
 *$include scen\scen_Emistarget_10_to_100_crpALAhigh_nov.gms
 *$include scen\scen_Emistarget_10_to_100_crpPastALAhigh_nov.gms
 
-*$include scen\PII_VAT\scen_ProdEmistarget_90_AgFeedC_feb24_VAT_LP.gms
+$include scen\PII_VAT\scen_Emistarget_10_AgFeedC_feb24_VAT.gms
 
 
 
-$include scen\%scenariofile%.gms
+*$include scen\%scenariofile%.gms
 
 
 

@@ -6,7 +6,7 @@
 $setglobal scen _normal
 
 * Specify if Endogenous demand is used (on), or exogenous (OFF) (a biofuel consumption constraint)
-$setglobal endoDemand ON
+$setglobal endoDemand OFF
 
 * Specify if biofuel produced is distributed to end user (ON), or not (OFF)
 $setglobal distributeBiofuel ON

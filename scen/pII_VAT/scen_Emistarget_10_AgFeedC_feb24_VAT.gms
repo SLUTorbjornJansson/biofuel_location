@@ -10,12 +10,13 @@ $setglobal scen _AgFeedC_feb24_VAT
 $setglobal endoDemand ON
 $setglobal optfile 1
 $setglobal level 00
-$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget100_7feb.gdx
+*$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget40_crpALAhigh_7dec.gdx
+$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget20_12may.gdx
 
 
 *  --- 10 %
 * --------------------------------------------------------------------------------
-$setglobal emistarget 10
+$setglobal emistarget 70
 
 
 
@@ -31,8 +32,8 @@ old_cost_feedstock(f,g) =cost_feedstock(f,g);
 cost_feedstock(f,g)= cost_feedstock_Ag(f,g);
 
 * No ALA land
-v_feedstock.fx(ab, b_fuel,tech,i,g) = 0;
-v_feedstock.fx(abP, b_fuel,tech,i,g) = 0;
+v_feedstock_prod.fx(ab, b_fuel,g) = 0;
+v_feedstock_prod.fx(abP, b_fuel,g) = 0;
 
 
 
@@ -54,9 +55,9 @@ p_emisTarget = deafult_emisTarget;
 cost_feedstock(f,g)= old_cost_feedstock(f,g);
 
 * Reset bound on ALA
-v_feedstock.lo(ab,b_fuel,tech,i,g) = 0;
-v_feedstock.up(ab,b_fuel,tech,i,g) = +inf;
-v_feedstock.lo(abP,b_fuel,tech,i,g) = 0;
-v_feedstock.up(abP,b_fuel,tech,i,g) = +inf;
+v_feedstock_prod.lo(ab, b_fuel,g) = 0;
+v_feedstock_prod.up(ab, b_fuel,g) = +inf;
+v_feedstock_prod.lo(abP,b_fuel,g) = 0;
+v_feedstock_prod.up(abP,b_fuel,g) = +inf;
 
 
