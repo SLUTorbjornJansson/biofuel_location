@@ -4,6 +4,9 @@
 * of fossil fuel and biofuel to reach a policy target
 * ---------------------------------------------------------------------------------------------------------------
 
+$setglobal results_out results
+$setglobal results_in  results
+
 * --- Inital settings, can be changed for each scenario
 * Scenario name ending
 $setglobal scen _normal
@@ -36,7 +39,7 @@ $setglobal mipstart 1
 $setglobal start_value1 1
 
 * OPtimization working on  number of threads (deafult =1);
-$setglobal threads 16
+$setglobal threads 5
 
 * Use gams option file (1/0) (osicplex.opt: CPXPARAM_Advance, CPXPARAM_Threads, CPXPARAM_MIP_Display, CPXPARAM_Emphasis_MIP, PXPARAM_MIP_Pool_Capacity, CPXPARAM_MIP_Tolerances_AbsMIPGap                0 
 $setglobal optfile 1
@@ -166,7 +169,7 @@ deafult_emisTarget = p_emisTarget;
 *$include scen\scen_Emistarget_10_to_100_crpALAhigh_nov.gms
 *$include scen\scen_Emistarget_10_to_100_crpPastALAhigh_nov.gms
 
-$include scen\PII_VAT\scen_Emistarget_10_AgFeedC_feb24_VAT.gms
+$include scen\scen_EmT_X_100p_feedC_may.gms
 
 
 
