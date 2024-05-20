@@ -224,7 +224,7 @@ positive variable v_feedstock_prod(f,b_fuel,g) 'Total output of feedstock of cos
 positive variable v_production_cost(b_fuel,tech,i) 'Total variable production costs at facility at i';
 positive variable v_feedstock_cost(g) 'Total cost to produce feedstock in region g';
 positive variable v_transport_cost(b_fuel,i) 'Total transport cost for feedstock shipped to facility at i ';
-positive variable v_tot_feedstock(b_fuel,i)'Total feedstock used at i';
+positive variable v_tot_feedstock(b_fuel,tech,i)'Total feedstock used by facility tech at i';
 positive variable v_fueltransport_cost(b_fuel,i)'Total transport cost of fuel from facility at i ';
 positive variable v_y_sales(b_fuel,i,h) 'Total sales of y to demand point h';
 positive variable v_y(b_fuel,i)'Total production of fuel at i';
@@ -277,8 +277,8 @@ equation eq_facilityRestrictionFeed(b_fuel,tech, i) 'Restricting number of diffe
 equation eq_noNeighbour(b_fuel,i) 'equation to reduce time for solve - restrict facilities not to be too close to each other';
 
 equation eq_feedstock(f,g) "max feedstock uptake from supply region g";
-equation eq_capacity_up(b_fuel,i) 'tech capacity constraint upper';
-equation eq_capacity_lo(b_fuel,i) 'tech capacity constraint lower';
+equation eq_capacity_up(b_fuel,tech,i) 'tech capacity constraint upper';
+equation eq_capacity_lo(b_fuel,tech,i) 'tech capacity constraint lower';
 
 equation eq_demandEq(b_fuel,i)"sales of y equals production of y";
 equation eq_demandMax(b_fuel,h) "restrict max demand at point h";

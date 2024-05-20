@@ -34,16 +34,17 @@ $offtext
 eq_production(b_fuel,i)..
     v_y(b_fuel,i) =e=
 *        sum(f_eq, conversion_factor(b_fuel) * v_tot_feedstock(b_fuel,tech_eq,i)) ;
-        conversion_factor(b_fuel) * v_tot_feedstock(b_fuel,i) ;
-
+        conversion_factor(b_fuel) * sum(tech_eq, v_tot_feedstock(b_fuel,tech_eq,i));
 
 
 * Cost function (at site)
 eq_production_cost(b_fuel,tech_eq,i)..
 v_production_cost(b_fuel,tech_eq,i) =e=
   investment_cost(b_fuel,tech_eq) * J(b_fuel,tech_eq,i)
-  + sum(g, v_feedStock(b_fuel,i,g) * (production_cost(b_fuel,tech_eq)+investment_cost_var(b_fuel,tech_eq)))
+  + v_tot_feedstock(b_fuel,tech_eq,i) * (production_cost(b_fuel,tech_eq)+investment_cost_var(b_fuel,tech_eq))
 ;
+
+
 
 *TJ Matching total supply to total demand of feedstock in each production region g
 eq_feedstock_supbal(b_fuel,g) ..
@@ -70,7 +71,7 @@ v_fueltransport_cost(b_fuel,i) =e=
 
 * Total feedstock to one facility
 eq_tot_feedstock(b_fuel,i)..
-    v_tot_feedstock(b_fuel,i) =e= sum(g, v_feedStock(b_fuel,i,g));
+    sum(tech_eq, v_tot_feedstock(b_fuel,tech_eq,i)) =e= sum(g, v_feedStock(b_fuel,i,g));
 
 
 * Restrict feedstock f from one region to be below a max available feedsetock
@@ -80,17 +81,17 @@ eq_feedstock(f_eq,g)..
     ) =l= feedstock(f_eq,g);
 
 
-* Restricting production to be within tech_eqbounds
+* Restricting production to be within technological bounds
 * Also assures production only if J is 1 (production facility exists)
-eq_capacity_up(b_fuel,i)..
-v_y(b_fuel,i)
-*-v_art2(b_fuel,tech_eq,i)
- =l= sum(tech_eq, capacity_constraint_up(b_fuel,tech_eq,i) * J(b_fuel,tech_eq,i));
+eq_capacity_up(b_fuel,tech_eq,i)..
+   v_tot_feedstock(b_fuel,tech_eq,i) * conversion_factor(b_fuel)
+*  -v_art2(b_fuel,tech_eq,i)
+   =l= capacity_constraint_up(b_fuel,tech_eq,i) * J(b_fuel,tech_eq,i);
 
-eq_capacity_lo(b_fuel,i)..
-v_y(b_fuel,i)
-*+ v_art3(b_fuel, tech_eq,i)
-=g= sum(tech_eq, capacity_constraint_lo(b_fuel,tech_eq,i) * J(b_fuel,tech_eq,i));
+eq_capacity_lo(b_fuel,tech_eq,i)..
+   v_tot_feedstock(b_fuel,tech_eq,i) * conversion_factor(b_fuel)
+*  + v_art3(b_fuel, tech_eq,i)
+   =g= capacity_constraint_lo(b_fuel,tech_eq,i) * J(b_fuel,tech_eq,i);
 
 
 * demand restriction. All production must be sold to some point h

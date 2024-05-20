@@ -164,6 +164,9 @@ p_LUC p_ghg
 capacity_constraint_up
 p_solveInfo, p_meta;
 
+*TJ unload everything, for debugging.
+execute_unload "chk_all_out.gdx";
+
 * Delete variable valus for next
 
 option kill = v_feedstock                                    ;

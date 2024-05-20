@@ -17,7 +17,7 @@ $setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target0
 
 *  --- 40 %
 * --------------------------------------------------------------------------------
-$setglobal emistarget 05
+$setglobal emistarget 20
 
 * No ALA land
 *v_feedstock.fx(abP,g) = 0;
