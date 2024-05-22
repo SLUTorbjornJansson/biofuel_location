@@ -74,6 +74,7 @@ $include start_value_1.gms
 execute_loadpoint '%startValueFile%'
 J
 v_feedstock
+v_feedstock_prod
 v_y_sales
 v_y
 v_transport_cost
@@ -111,16 +112,16 @@ if(execError gt 0,
 *           The first solve may be either far off or perfect (if starting values are good)
 *           We give just a little time at this point, because experience shows that
 *           if the solver is restarted from a better point, it is faster.
-            m_locate.Reslim    =  20;
+            m_locate.Reslim    =  (%reslim% ) * 60;
             SOLVE m_locate USING MIP MINIMIZING v_tot_cost;
             if ( EXECERROR > 0, abort "internal error in xxxx");
 *$ontext
 *
 *           Try re-starting solver twice if non-optimal or infeasible
-*            if(  (m_locate.modelstat eq 7) OR (m_locate.modelstat eq 4) OR (m_locate.solvestat eq 3),
-*               m_locate.Reslim    =  60;
-*               SOLVE m_locate USING MIP MINIMIZING v_tot_cost;
-*            );
+            if(  (m_locate.modelstat eq 7) OR (m_locate.modelstat eq 4) OR (m_locate.solvestat eq 3),
+               m_locate.Reslim    =  60;
+               SOLVE m_locate USING MIP MINIMIZING v_tot_cost;
+            );
 
 *           Now we should have a good starting point. Give it some time now.
             if(  (m_locate.modelstat eq 7) OR (m_locate.modelstat eq 4) OR (m_locate.solvestat eq 3),

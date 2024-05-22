@@ -10,14 +10,18 @@ $setglobal scen _100p_FeedC_may
 $setglobal endoDemand ON
 $setglobal optfile 1
 $setglobal level 00
-$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap005_target00_emistarget100_7feb.gdx
+$setglobal startValueFile results\results_data_rev_EndoON_distrON_gap001_target00_emistarget06_100p_FeedC_may.gdx
 
 
 
 
-*  --- 40 %
+* Emission target from argument of this batinclude file?
 * --------------------------------------------------------------------------------
-$setglobal emistarget 20
+$set emistarget %1
+
+
+
+
 
 * No ALA land
 *v_feedstock.fx(abP,g) = 0;
@@ -35,19 +39,22 @@ p_VAT=0.25;
 * Fix fuel use -biofeul replacemtn only possible
 v_yEnergy.fx(blend_fuel,h)=0;
 
+**TJ as a consequence, fix also the consumption of blended fuel
+*v_endY.fx(end_fuel,h) = 0;
+**TJ ... and the consumer surplus change is then also zero
+*v_redY_fossilCostGainRed.fx(end_fuel, h) = 0;  
+*v_redY_consLoss.fx(end_fuel, h) = 0;
+
+
 *remove blend -in cap
 blend_cap(blend_fuel,h) =1;
 
 * Change feedstock cost to "new"
 cost_feedstock(grass,g)= cost_feedstock_Ag(grass,g);
 
-* Assume emissions from gasoline and diesel should decrease by 70%
-* assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
 
-p_emisTarget = -%emistarget% /100 * (sum(h, f_fuel_0("gasE",h)/energy_ekv("gas")) * ghg_factor("all", "gasoline","all"));
-display p_emisTarget, ghg_factor, f_fuel_0;
-display ghg_factor;
 
+$ifi %scen_has_ini% == yes $goto just_run
 * --- Change data to match 100 percentile
 * based on median values, for the lowest third of values of feedstockCost
  
@@ -66,14 +73,19 @@ parameter elas_factor      ;
 parameter cost_factor      ;
 parameter arab_factor(g);
 
+parameter landAreaSCB(*,*);
+parameter prodEmistarget;
+parameter shareProdOfTotalFuel;
 
 
 * --- Load data of share of land in a certain land class
 $gdxin 'data\municipality_areas_land.gdx'
 $load
-parameter landAreaSCB(*,*);
 $load landAreaSCB =landarea
 $GDXIN
+
+$setGlobal scen_has_ini yes
+$label just_run
 
 distance_factor $ sum(g, landareaSCB(g, "total landareal")) = s_distance_factor /
                     (sum(g, areaHA2(g,"total akerareal","average15_19"))/ sum(g, landareaSCB(g, "total landareal")));
@@ -104,7 +116,9 @@ elas_factor $ (sum(g, sum(lan$lan_to_kn(lan,g),elas_fodder("grass1",lan))  * are
 cost_factor $(sum(g, cost_feedstock("grass1",g) * areaHA2(g,"total akerareal","average15_19")) and sum(g , areaHA2(g,"total akerareal","average15_19")))
     = s_cost_factor  /
                     (sum(g, cost_feedstock("grass1",g) * areaHA2(g,"total akerareal","average15_19"))
+
                                 / sum(g , areaHA2(g,"total akerareal","average15_19")));
+* Ley area - will be transferred to share ley
     
 
 * Distances - will be transferred to agricultural density
@@ -114,7 +128,6 @@ distance(i,g) = distance(i,g) /distance_factor;
 * Yield -
 yield(g,f) = yield_factor * yield(g,f);
 
-* Ley area - will be transferred to share ley
 * if share increase by 50%, increase grass1 and grass2 by 50%, adjust grass3 accordingly, to make total available area equal.
 * that is, we most care about the corect amount of ey, and then adjust the share arable we can take
 
@@ -158,12 +171,20 @@ display feedstock, yield, feedstock_area, arab_factor;
 
 
 
+
+
+* Assume emissions from gasoline and diesel should decrease by 70%
+* assume that is these fuels multiplied with emission factors. this will leave out some emission weel ok
+
+p_emisTarget = -%emistarget% /100 * (sum(h, f_fuel_0("gasE",h)/energy_ekv("gas")) * ghg_factor("all", "gasoline","all"));
+display p_emisTarget, ghg_factor, f_fuel_0;
+display ghg_factor;
+
 *Adjust demand shares when only
 * emission per unit biofeul seem to be 0.45 .
 * approximate production for the emissions target
-parameter prodEmistarget;
+
 prodEmistarget = p_emisTarget/ (ghg_factor("all", "gasolineSubs","all")+ 0.45);
-parameter shareProdOfTotalFuel;
 shareProdOfTotalFuel = prodEmistarget / sum(h, f_fuel_0("gasE",h)/energy_ekv("ethanol"));
 
 * let max min demand be 10% above and below teh equal share

@@ -165,7 +165,7 @@ capacity_constraint_up
 p_solveInfo, p_meta;
 
 *TJ unload everything, for debugging.
-execute_unload "chk_all_out.gdx";
+*execute_unload "chk_all_out.gdx";
 
 * Delete variable valus for next
 

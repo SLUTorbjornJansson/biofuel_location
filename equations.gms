@@ -6,6 +6,7 @@ scalar p_useEndoDemand /0/;
 scalar p_distributeBiofuel /0/;
 scalar p_hasStartValues /0/;
 scalar p_useNeighbourFcn /0/;
+scalar p_useCountRestrictions "Activate certain restrictions" /0/;
 
 $ifi %distributeBiofuel%==ON p_distributeBiofuel = 1;
 $ifi %distributeBiofuel%==OFF p_distributeBiofuel = 0;
@@ -93,6 +94,10 @@ eq_capacity_lo(b_fuel,tech_eq,i)..
 *  + v_art3(b_fuel, tech_eq,i)
    =g= capacity_constraint_lo(b_fuel,tech_eq,i) * J(b_fuel,tech_eq,i);
 
+equation eq_production_up(b_fuel,i) "Help the solver by explicitly removing production where there is no facility";
+eq_production_up(b_fuel,i)..
+   v_y(b_fuel,i) =l= sum(tech_eq, J(b_fuel,tech_eq,i)*capacity_constraint_up(b_fuel,tech_eq,i));
+
 
 * demand restriction. All production must be sold to some point h
 eq_demandEq(b_fuel,i)$ p_distributeBiofuel..
@@ -140,12 +145,12 @@ eq_end_uses(blend_fuel,h) $ p_useEndoDemand..
 v_yEnergy(blend_fuel,h) =e= sum(end_fuel $ end_fuel_map(end_fuel, blend_fuel), v_endY(end_fuel,h));
 
 * Each cost segment is bounded 
-eq_redY_max(end_fuel, h) $ p_useEndoDemand..
+eq_redY_max(end_fuel, h) $ [p_useEndoDemand or v_endY.range(end_fuel,h)]..
 v_endY(end_fuel,h) =g= max_redY(end_fuel, h);
 
 v_endY.lo(end_fuel,h) =max_redY(end_fuel, h);
 
-eq_redY_min(end_fuel, h) $ p_useEndoDemand..
+eq_redY_min(end_fuel, h) $ [p_useEndoDemand  or v_endY.range(end_fuel,h)]..
 v_endY(end_fuel,h) =l= min_redY(end_fuel, h);
 v_endY.up(end_fuel,h) = min_redY(end_fuel, h);
 
@@ -262,7 +267,7 @@ v_tot_cost =e=
 
 * --- Model restrictions
 
-e_J(b_fuel,tech_eq)..
+e_J(b_fuel,tech_eq) $ p_useCountRestrictions ..
 
 * the number of facilites must be non-negative (can be restricted to a given number)
     sum(i, J(b_fuel,tech_eq,i)
@@ -274,18 +279,18 @@ e_J(b_fuel,tech_eq)..
 
 * Restrict to at most one tech_eqlevel type of facility (fuel type) per region
 
-eq_facilityRestrictionTech(b_fuel,i)..
+eq_facilityRestrictionTech(b_fuel,i) $ p_useCountRestrictions ..
     sum(tech_eq, J(b_fuel,tech_eq,i)) =l= p_max_facilityReg;
 
 * Restrict to only one type of fuel per facility...
 * not ready
-eq_facilityRestrictionFeed(b_fuel, tech_eq, i)..
+eq_facilityRestrictionFeed(b_fuel, tech_eq, i) $ p_useCountRestrictions ..
 1=e=1;
 *    sum(f_eq,abs(v_tot_feedstock(b_fuel,tech_eq,i))) =l= max(f_eq,v_tot_feedstock(b_fuel,tech_eq,i));
 
 
 * If 1, it is suitable, otherwise zero and non-suitable. Possibility to exclude facility sites
-eq_facility_suitability(b_fuel,tech_eq,i)..
+eq_facility_suitability(b_fuel,tech_eq,i) $ p_useCountRestrictions ..
     J(b_fuel,tech_eq,i) =l= facilitySuitability(b_fuel,tech_eq,i);
 *0=e=0;
 * Restrict facilities in neigbouring area

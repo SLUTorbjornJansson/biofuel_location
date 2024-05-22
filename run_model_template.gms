@@ -29,7 +29,7 @@ $setglobal emistarget 70
 
 
 * max relative optimality gap for MIP model solution (seem to override opt file)
-$setglobal gap 001
+$setglobal gap 005
 * reslim deafult 300, for 300 minutes (* 60)
 $setglobal reslim 2000
 
@@ -169,7 +169,12 @@ deafult_emisTarget = p_emisTarget;
 *$include scen\scen_Emistarget_10_to_100_crpALAhigh_nov.gms
 *$include scen\scen_Emistarget_10_to_100_crpPastALAhigh_nov.gms
 
-$include scen\scen_EmT_X_100p_feedC_may.gms
+*$batinclude scen\scen_EmT_X_100p_feedC_may.gms 05
+*$batinclude scen\scen_EmT_X_100p_feedC_may.gms 06
+$batinclude scen\scen_EmT_X_100p_feedC_may.gms 07
+*$batinclude scen\scen_EmT_X_100p_feedC_may.gms 08
+*$batinclude scen\scen_EmT_X_100p_feedC_may.gms 09
+*$batinclude scen\scen_EmT_X_100p_feedC_may.gms 10
 
 
 
